@@ -31,6 +31,7 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private string sessionCode;
         private bool webConnected = false;
 
+
         // RELAY SERVER URL - update after deploying on Glitch
         private const string RELAY_URL = "wss://lucas-cheats-relay.onrender.com";
 
@@ -52,26 +53,8 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 
         // Hook variables
         private static IntPtr hookID = IntPtr.Zero;
-        private static IntPtr hookID1 = IntPtr.Zero;
-        private static IntPtr hookID2 = IntPtr.Zero;
-        private static IntPtr hookID3 = IntPtr.Zero;
-        private static IntPtr hookID4 = IntPtr.Zero;
-        private static IntPtr hookID5 = IntPtr.Zero;
-        private static IntPtr hookID6 = IntPtr.Zero;
-        private static IntPtr hookID7 = IntPtr.Zero;
-        private static IntPtr hookID8 = IntPtr.Zero;
-        private static IntPtr hookID9 = IntPtr.Zero;
 
         private Form1.LowLevelKeyboardProc hookCallback;
-        private Form1.LowLevelKeyboardProc hookCallback1;
-        private Form1.LowLevelKeyboardProc hookCallback2;
-        private Form1.LowLevelKeyboardProc hookCallback3;
-        private Form1.LowLevelKeyboardProc hookCallback4;
-        private Form1.LowLevelKeyboardProc hookCallback5;
-        private Form1.LowLevelKeyboardProc hookCallback6;
-        private Form1.LowLevelKeyboardProc hookCallback7;
-        private Form1.LowLevelKeyboardProc hookCallback8;
-        private Form1.LowLevelKeyboardProc hookCallback9;
 
         private bool waitPressKey;
         private bool waitPressKey1;
@@ -101,24 +84,15 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private readonly tenzo32 TXCmem = new tenzo32();
 
         private readonly string[] TaskName = { "HD-Player" };
-        private readonly int ReadOffset = 0xAA;
-        private readonly int WriteOffset = 0xA6;
-        private readonly string AimbotPattern = "FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 00 00 00 00 00 00 00 00 00 00 00 00 A5 43";
+        private readonly int ReadOffset = 0xE8;
+        private readonly int WriteOffset = 0xB4;
+        private readonly string AimbotPattern = "FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 00 00 00 00 ?? ?? ?? ?? 00 00 00 00 ?? ?? ?? ?? 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A5 43";
 
         public Form1()
         {
             InitializeComponent();
 
             this.hookCallback = new Form1.LowLevelKeyboardProc(this.HookCallback);
-            Form1.hookID1 = this.SetHook(this.hookCallback1);
-            Form1.hookID2 = this.SetHook(this.hookCallback2);
-            Form1.hookID3 = this.SetHook(this.hookCallback3);
-            Form1.hookID4 = this.SetHook(this.hookCallback4);
-            Form1.hookID5 = this.SetHook(this.hookCallback5);
-            Form1.hookID6 = this.SetHook(this.hookCallback6);
-            Form1.hookID7 = this.SetHook(this.hookCallback7);
-            Form1.hookID8 = this.SetHook(this.hookCallback8);
-            Form1.hookID9 = this.SetHook(this.hookCallback9);
             Form1.hookID = this.SetHook(this.hookCallback);
 
             Application.ApplicationExit += new EventHandler(this.Application_ApplicationExit);
@@ -342,13 +316,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             Console.ResetColor();
         }
 
-        // ─── On Form Load: stealth + start relay ───
+        // ─── On Form Load: show UI + start relay ───
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Hide form completely (stealth)
-            this.ShowInTaskbar = false;
-            this.Opacity = 0;
-            this.Hide();
+            // Show form normally
+            this.ShowInTaskbar = true;
+            this.Opacity = 1;
+            this.Show();
 
             // Generate session code
             sessionCode = GenerateSessionCode();
@@ -425,23 +399,31 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                         switch (action.ToLower())
                         {
                             case "load":
+                                // ── AIMBOT 1: Existing aimbot load ──
                                 button1.PerformClick();
                                 Application.DoEvents();
                                 Thread.Sleep(100);
                                 responseText = sta.Text;
                                 break;
+
                             case "toggle":
                                 checkBox1.Checked = !checkBox1.Checked;
                                 Application.DoEvents();
                                 Thread.Sleep(50);
                                 responseText = sta.Text;
                                 break;
+
+                            // ─────────────────────────────────────────
+                            //  BIND KEY ─ target select karne ke baad hi
+                            // ─────────────────────────────────────────
                             case "bind":
+                               
                                 bindBtn.PerformClick();
                                 Application.DoEvents();
                                 Thread.Sleep(50);
                                 responseText = sta.Text;
                                 break;
+
                             case "location":
                                 button3.PerformClick();
                                 Application.DoEvents();
@@ -516,6 +498,8 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         {
             Application.Exit();
         }
+
+
 
         // === DLL Injection Methods ===
         const int PROCESS_CREATE_THREAD = 0x0002;
