@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/RED-X CLOUD CONTROL BASIC.html"
+  status = 200
