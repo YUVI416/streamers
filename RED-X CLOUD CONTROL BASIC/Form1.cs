@@ -136,7 +136,7 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                     }
                 }
             }
-            return Form1.CallNextHookEx(Form1.hookID1, nCode, wParam, lParam);
+            return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
         }
 
         private readonly Dictionary<long, byte[]> OriginalValue1 = new Dictionary<long, byte[]>();
@@ -316,25 +316,152 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             Console.ResetColor();
         }
 
-        // ─── On Form Load: show UI + start relay ───
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Show form normally
-            this.ShowInTaskbar = true;
-            this.Opacity = 1;
+            this.ShowInTaskbar = false;
+            this.Opacity = 0;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Size = new System.Drawing.Size(1, 1);
+            this.Location = new System.Drawing.Point(-32000, -32000);
             this.Show();
 
-            // Generate session code
-            sessionCode = GenerateSessionCode();
-
-            // Show console terminal with code
             AllocConsole();
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.Title = "LUCAS CHEATS";
+
+            if (!RunKeyAuthLogin())
+            {
+                Application.Exit();
+                return;
+            }
+
+            sessionCode = GenerateSessionCode();
             PrintConsoleBanner(sessionCode);
 
-            // Connect to relay server in background
             relayThread = new Thread(() => StartRelayConnection(sessionCode));
             relayThread.IsBackground = true;
             relayThread.Start();
+        }
+
+        private bool RunKeyAuthLogin()
+        {
+            var auth = new KeyAuth("streamers", "xyk3sgyp9e", "1.0");
+
+            PrintAuthBanner();
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("  Connecting to KeyAuth...");
+            Console.ResetColor();
+
+            bool inited = auth.Init();
+            if (!inited)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"  Failed to connect: {auth.Message}");
+                Console.ResetColor();
+                Console.WriteLine("\n  Press any key to exit...");
+                Console.ReadKey(true);
+                return false;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("  KeyAuth connected.\n");
+            Console.ResetColor();
+
+            int attempts = 0;
+            while (attempts < 3)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("  Username : ");
+                Console.ResetColor();
+                string user = Console.ReadLine()?.Trim() ?? "";
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("  Password : ");
+                Console.ResetColor();
+                string pass = ReadPassword();
+
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("  Authenticating...");
+                Console.ResetColor();
+
+                if (auth.Login(user, pass))
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"  {auth.Message}");
+                    Console.ResetColor();
+                    Thread.Sleep(900);
+                    Console.Clear();
+                    return true;
+                }
+
+                attempts++;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"  {auth.Message}");
+                Console.ResetColor();
+
+                if (attempts < 3)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine($"  {3 - attempts} attempt(s) remaining.\n");
+                    Console.ResetColor();
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\n  Too many failed attempts. Exiting...");
+            Console.ResetColor();
+            Thread.Sleep(2000);
+            return false;
+        }
+
+        private void PrintAuthBanner()
+        {
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine();
+            Console.WriteLine("  ██╗     ██╗   ██╗ ██████╗ █████╗ ███████╗");
+            Console.WriteLine("  ██║     ██║   ██║██╔════╝██╔══██╗██╔════╝");
+            Console.WriteLine("  ██║     ██║   ██║██║     ███████║███████╗");
+            Console.WriteLine("  ██║     ██║   ██║██║     ██╔══██║╚════██║");
+            Console.WriteLine("  ███████╗╚██████╔╝╚██████╗██║  ██║███████║");
+            Console.WriteLine("  ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("            C H E A T S   v1.0");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("  ╔════════════════════════════════════════════╗");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("  ║         LOGIN — CLOUD CONTROL v1.0        ║");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("  ╚════════════════════════════════════════════╝");
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
+        private string ReadPassword()
+        {
+            var pass = new StringBuilder();
+            ConsoleKeyInfo key;
+            do
+            {
+                key = Console.ReadKey(true);
+                if (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Backspace)
+                {
+                    pass.Append(key.KeyChar);
+                    Console.Write("*");
+                }
+                else if (key.Key == ConsoleKey.Backspace && pass.Length > 0)
+                {
+                    pass.Remove(pass.Length - 1, 1);
+                    Console.Write("\b \b");
+                }
+            }
+            while (key.Key != ConsoleKey.Enter);
+            Console.WriteLine();
+            return pass.ToString();
         }
 
         // ─── WebSocket connection to relay ───

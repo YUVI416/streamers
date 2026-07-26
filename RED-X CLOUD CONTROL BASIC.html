@@ -1,59 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LUCAS CHEATS — Cloud Control</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --red: #ff1a1a;
-      --red-dim: rgba(255,26,26,0.18);
-      --red-glow: rgba(255,26,26,0.55);
-      --cyan: #00f5ff;
-      --cyan-dim: rgba(0,245,255,0.12);
-      --cyan-glow: rgba(0,245,255,0.45);
-      --bg: #050508;
-      --card-bg: rgba(8,8,14,0.92);
-      --border: rgba(255,255,255,0.07);
-      --text: #e8e8ff;
-      --muted: rgba(232,232,255,0.35);
-    }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  <title>LUCAS CHEATS - Cloud Control</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
 
-    body, html {
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body,
+    html {
       height: 100%;
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #000000;
+      color: #ffffff;
       overflow: hidden;
     }
 
-    /* ── CANVAS PARTICLES ── */
-    #canvas {
+    /* ─── GRID BACKGROUND ─── */
+    body::before {
+      content: '';
       position: fixed;
       inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+    }
+
+    /* Radial glow center */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(ellipse, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
       z-index: 0;
       pointer-events: none;
     }
 
-    /* ── SCANLINES ── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.08) 2px,
-        rgba(0,0,0,0.08) 4px
-      );
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    /* ── PAGES ── */
+    /* ─── PAGES ─── */
     .page {
       display: none;
       position: relative;
@@ -63,104 +61,78 @@
       align-items: center;
       justify-content: center;
     }
-    .page.active { display: flex; }
 
-    /* ── CARD ── */
+    .page.active {
+      display: flex;
+    }
+
+    /* ─── CARD ─── */
     .card {
-      background: var(--card-bg);
-      border: 1px solid rgba(255,26,26,0.25);
-      border-radius: 16px;
-      padding: 2.5rem 2.2rem;
-      width: 430px;
+      background: rgba(10, 10, 10, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2.8rem 2.5rem;
+      width: 420px;
       text-align: center;
-      position: relative;
-      overflow: hidden;
-      animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1);
+      animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow:
-        0 0 0 1px rgba(255,26,26,0.08),
-        0 0 40px rgba(255,26,26,0.12),
-        0 0 80px rgba(0,0,0,0.9),
-        inset 0 1px 0 rgba(255,255,255,0.05);
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 25px 80px rgba(0, 0, 0, 0.8),
+        0 0 60px rgba(255, 255, 255, 0.03);
     }
 
-    /* Corner accents */
-    .card::before, .card::after {
-      content: '';
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border-color: var(--red);
-      border-style: solid;
-    }
-    .card::before {
-      top: -1px; left: -1px;
-      border-width: 2px 0 0 2px;
-      border-radius: 16px 0 0 0;
-    }
-    .card::after {
-      bottom: -1px; right: -1px;
-      border-width: 0 2px 2px 0;
-      border-radius: 0 0 16px 0;
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
-    @keyframes cardIn {
-      from { opacity:0; transform: translateY(30px) scale(0.96); }
-      to   { opacity:1; transform: translateY(0) scale(1); }
+    /* ─── LOGO ─── */
+    .logo-wrap {
+      margin-bottom: 2rem;
     }
-
-    /* ── LOGO ── */
-    .logo-wrap { margin-bottom: 1.8rem; position: relative; }
 
     .logo {
-      font-family: 'Orbitron', monospace;
-      font-size: 1.55rem;
+      font-size: 1.6rem;
       font-weight: 900;
-      letter-spacing: 5px;
+      letter-spacing: 4px;
+      color: #ffffff;
       text-transform: uppercase;
-      color: #fff;
-      text-shadow: 0 0 20px var(--red-glow), 0 0 40px rgba(255,26,26,0.3);
-      animation: glitch 4s infinite;
-    }
-
-    @keyframes glitch {
-      0%,90%,100% { text-shadow: 0 0 20px var(--red-glow), 0 0 40px rgba(255,26,26,0.3); transform: none; }
-      91% { transform: translate(-2px,0) skewX(-3deg); text-shadow: 2px 0 0 var(--cyan), -2px 0 0 var(--red); }
-      92% { transform: translate(2px,0) skewX(3deg); text-shadow: -2px 0 0 var(--cyan), 2px 0 0 var(--red); }
-      93% { transform: none; }
     }
 
     .logo-sub {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
-      color: var(--red);
+      font-size: 0.6rem;
+      color: rgba(255, 255, 255, 0.3);
       letter-spacing: 5px;
-      margin-top: 5px;
+      margin-top: 4px;
       text-transform: uppercase;
-      opacity: 0.8;
     }
 
-    .logo-bar {
-      width: 60px;
+    .logo-line {
+      width: 40px;
       height: 2px;
+      background: #fff;
       margin: 12px auto 0;
-      background: linear-gradient(90deg, transparent, var(--red), var(--cyan), transparent);
       border-radius: 2px;
-      animation: barPulse 2s ease-in-out infinite;
-    }
-    @keyframes barPulse {
-      0%,100% { opacity:1; width:60px; }
-      50% { opacity:0.5; width:40px; }
     }
 
-    /* ── INPUTS ── */
-    .input-group { margin-bottom: 1rem; text-align: left; }
+    /* ─── INPUTS ─── */
+    .input-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
 
     .input-group label {
       display: block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
+      font-size: 0.6rem;
       font-weight: 600;
-      color: var(--red);
+      color: rgba(255, 255, 255, 0.4);
       letter-spacing: 3px;
       text-transform: uppercase;
       margin-bottom: 8px;
@@ -168,519 +140,506 @@
 
     .input-group input {
       width: 100%;
-      background: rgba(255,26,26,0.04);
-      border: 1px solid rgba(255,26,26,0.2);
-      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
       padding: 13px 16px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.9rem;
       color: #fff;
       outline: none;
-      transition: all 0.25s;
-      letter-spacing: 2px;
+      transition: all 0.2s;
     }
+
     .input-group input:focus {
-      border-color: var(--red);
-      background: rgba(255,26,26,0.08);
-      box-shadow: 0 0 0 3px rgba(255,26,26,0.1), 0 0 20px rgba(255,26,26,0.08);
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
     }
+
     .input-group input::placeholder {
-      color: rgba(255,255,255,0.18);
+      color: rgba(255, 255, 255, 0.2);
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* ── BUTTONS ── */
+    /* ─── MAIN BUTTON ─── */
     .btn {
       cursor: pointer;
       width: 100%;
-      background: linear-gradient(135deg, var(--red) 0%, #cc0000 100%);
-      color: #fff;
+      background: #ffffff;
+      color: #000000;
       border: none;
       padding: 14px 28px;
       margin-top: 0.8rem;
-      font-family: 'Orbitron', monospace;
-      font-size: 0.72rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
       font-weight: 700;
-      border-radius: 8px;
+      border-radius: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
       transition: all 0.2s;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(255,26,26,0.35);
     }
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      transition: left 0.4s;
-    }
-    .btn:hover::before { left: 100%; }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(255,26,26,0.5), 0 0 20px rgba(255,26,26,0.3);
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.88);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ─── OUTLINE BUTTON ─── */
     .btn-outline {
       background: transparent;
-      color: var(--cyan);
-      border: 1px solid rgba(0,245,255,0.3);
-      box-shadow: 0 0 10px rgba(0,245,255,0.05);
-    }
-    .btn-outline:hover {
-      background: var(--cyan-dim);
-      border-color: var(--cyan);
-      box-shadow: 0 0 20px var(--cyan-glow), 0 4px 20px rgba(0,245,255,0.15);
       color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+    }
+
+    /* ─── DANGER BUTTON ─── */
     .btn-danger {
       background: transparent;
-      color: var(--red);
-      border: 1px solid rgba(255,26,26,0.35);
-      box-shadow: none;
-    }
-    .btn-danger:hover {
-      background: var(--red-dim);
-      border-color: var(--red);
-      box-shadow: 0 0 20px var(--red-glow), 0 4px 20px rgba(255,26,26,0.2);
-      color: #fff;
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.4);
     }
 
-    /* ── CONTROL GRID ── */
+    .btn-danger:hover {
+      background: rgba(255, 68, 68, 0.1);
+      border-color: #ff4444;
+      box-shadow: 0 4px 20px rgba(255, 68, 68, 0.15);
+    }
+
+    /* ─── CONTROL GRID ─── */
     .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 1.4rem;
+      margin-top: 1.5rem;
     }
-    .btn-grid .btn { width: auto; font-size: 0.62rem; padding: 12px 8px; margin-top: 0; letter-spacing: 2px; }
-    .btn-full { grid-column: 1 / -1; }
 
-    /* ── SESSION BOX ── */
-    .session-box {
-      background: rgba(255,26,26,0.05);
-      border: 1px solid rgba(255,26,26,0.18);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 1.4rem;
-      position: relative;
+    .btn-grid .btn,
+    .btn-grid .btn-outline {
+      width: auto;
+      font-size: 0.7rem;
+      padding: 12px 10px;
+      margin-top: 0;
+      letter-spacing: 1.5px;
     }
-    .session-box .s-label {
+
+    .btn-full {
+      grid-column: 1 / -1;
+    }
+
+    /* ─── STATUS ─── */
+    .status-msg {
+      margin-top: 1rem;
+      font-size: 0.72rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.52rem;
+      color: rgba(255, 255, 255, 0.4);
+      min-height: 1.2rem;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+    }
+
+    /* ─── ERROR MSG ─── */
+    .error-msg {
+      font-size: 0.72rem;
+      color: #ff5555;
+      margin-top: 0.6rem;
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    /* ─── SESSION BOX ─── */
+    .session-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .session-box .label {
+      font-size: 0.55rem;
       letter-spacing: 4px;
-      color: var(--muted);
+      color: rgba(255, 255, 255, 0.3);
       text-transform: uppercase;
     }
-    .session-box .s-code {
+
+    .session-box .code {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 600;
       color: #fff;
-      letter-spacing: 5px;
-      margin-top: 5px;
-      text-shadow: 0 0 15px var(--cyan-glow);
+      letter-spacing: 4px;
+      margin-top: 4px;
     }
 
-    /* ── CONNECTION STATUS ── */
+    /* ─── CONNECTION STATUS ─── */
     .conn-status {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       margin-top: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 3px;
-      color: var(--muted);
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.4);
     }
+
     .dot {
-      width: 8px; height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #333;
-      transition: all 0.4s;
-      flex-shrink: 0;
+      background: #444;
+      transition: all 0.3s;
     }
+
     .dot.online {
-      background: var(--cyan);
-      box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan-glow);
-      animation: dotBlink 2s infinite;
+      background: #fff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      animation: blink 2s infinite;
     }
+
     .dot.offline {
-      background: var(--red);
-      box-shadow: 0 0 10px var(--red-glow);
-    }
-    @keyframes dotBlink {
-      0%,100% { opacity:1; }
-      50% { opacity:0.3; }
+      background: #ff4444;
+      box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
     }
 
-    /* ── STATUS / ERROR ── */
-    .status-msg {
-      margin-top: 1rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--muted);
-      min-height: 1.2rem;
-      letter-spacing: 1px;
-      transition: all 0.3s;
-    }
-    .error-msg {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--red);
-      margin-top: 0.6rem;
-      display: none;
-    }
-    .error-msg.show { display: block; }
+    @keyframes blink {
 
-    #control-status {
-      margin-top: 1rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--muted);
-      min-height: 1.2rem;
-      transition: all 0.3s;
-      letter-spacing: 0.5px;
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
     }
 
-    /* ── HINT ── */
-    .hint {
-      font-size: 0.65rem;
-      color: var(--muted);
-      line-height: 2;
-      margin-bottom: 1.4rem;
-      letter-spacing: 0.3px;
-    }
-    .hint span { color: var(--cyan); font-family: 'JetBrains Mono', monospace; }
-
-    /* ── DIVIDER ── */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 1.2rem 0;
-      color: var(--muted);
-      font-size: 0.52rem;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 3px;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,26,26,0.2), transparent);
-    }
-
-    /* ── SPINNER ── */
+    /* ─── SPINNER ─── */
     .spinner {
       display: inline-block;
-      width: 13px; height: 13px;
-      border: 2px solid rgba(255,255,255,0.15);
-      border-top-color: #fff;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      border-top: 2px solid #000;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       vertical-align: middle;
       margin-right: 8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── HEX BADGE ── */
-    .hex-badge {
-      display: inline-block;
-      background: var(--red-dim);
-      border: 1px solid rgba(255,26,26,0.3);
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.52rem;
+    .btn-outline .spinner,
+    .btn-danger .spinner {
+      border-color: rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 1.2rem 0;
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 0.55rem;
       letter-spacing: 2px;
-      color: var(--red);
-      margin-bottom: 1.2rem;
-      text-transform: uppercase;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* ─── CONTROL STATUS ─── */
+    #control-status {
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(255, 255, 255, 0.5);
+      min-height: 1.2rem;
+      transition: all 0.3s;
+    }
+
+    /* ─── HINT TEXT ─── */
+    .hint {
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.25);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.3px;
     }
   </style>
 </head>
+
 <body>
 
-<canvas id="canvas"></canvas>
-
-<!-- ════════ PAGE 1: LICENSE ════════ -->
-<div class="page active" id="page-login">
-  <div class="card">
-    <div class="logo-wrap">
-      <div class="hex-badge">// SYSTEM ACCESS</div>
-      <div class="logo">LUCAS CHEATS</div>
-      <div class="logo-sub">Cloud Control System v2.0</div>
-      <div class="logo-bar"></div>
-    </div>
-
-    <div class="input-group">
-      <label>// License Key</label>
-      <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" />
-    </div>
-
-    <p class="error-msg" id="auth-error">✗ Invalid license key</p>
-    <button class="btn" id="auth-btn" onclick="doAuth()">Authenticate</button>
-    <div class="status-msg" id="status-text"></div>
-  </div>
-</div>
-
-<!-- ════════ PAGE 2: SESSION CODE ════════ -->
-<div class="page" id="page-code">
-  <div class="card">
-    <div class="logo-wrap">
-      <div class="hex-badge">// SESSION LINK</div>
-      <div class="logo">LUCAS CHEATS</div>
-      <div class="logo-sub">Enter Session Code</div>
-      <div class="logo-bar"></div>
-    </div>
-
-    <p class="hint">
-      Run the <span>EXE</span> on your PC.<br>
-      A session code appears in terminal.<br>
-      Enter it below to connect remotely.
-    </p>
-
-    <div class="input-group">
-      <label>// Session Code</label>
-      <input type="text" id="session-code-input" placeholder="LC-XXXXXX" autocomplete="off" spellcheck="false"
-        style="text-transform:uppercase; letter-spacing:5px; font-size:1rem; text-align:center;" />
-    </div>
-
-    <p class="error-msg" id="code-error">✗ Invalid code or EXE not running</p>
-    <button class="btn" id="connect-btn" onclick="connectSession()">Connect to EXE</button>
-    <div class="status-msg" id="status-text2"></div>
-  </div>
-</div>
-
-<!-- ════════ PAGE 3: CONTROL PANEL ════════ -->
-<div class="page" id="page-control">
-  <div class="card" style="width:470px;">
-    <div class="logo-wrap">
-      <div class="hex-badge">// REMOTE CONTROL</div>
-      <div class="logo">LUCAS CHEATS</div>
-      <div class="logo-sub">Command Interface</div>
-      <div class="logo-bar"></div>
-    </div>
-
-    <div class="session-box">
-      <div class="s-label">Active Session</div>
-      <div class="s-code" id="active-code">—</div>
-      <div class="conn-status">
-        <span class="dot online" id="conn-dot"></span>
-        <span id="conn-label">CONNECTED</span>
+  <!-- ════════════ PAGE 1: LICENSE ════════════ -->
+  <div class="page active" id="page-login">
+    <div class="card">
+      <div class="logo-wrap">
+        <div class="logo">LUCAS CHEATS</div>
+        <div class="logo-sub">Cloud Control System</div>
+        <div class="logo-line"></div>
       </div>
-    </div>
 
-    <div class="btn-grid">
-      <button class="btn" onclick="sendCmd('load')">⚡ Load Aimbot</button>
-      <button class="btn-outline btn" onclick="sendCmd('toggle')">◈ Toggle</button>
-      <button class="btn-outline btn" onclick="sendCmd('bind')">⌨ Bind Key</button>
-      <button class="btn-outline btn" onclick="sendCmd('location')">◉ Chams Menu</button>
-      <button class="btn btn-danger btn-full" onclick="sendCmd('exit')">✕ Exit EXE</button>
-    </div>
+      <div class="input-group">
+        <label>License Key</label>
+        <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" />
+      </div>
 
-    <div id="control-status">—</div>
+      <p class="error-msg" id="auth-error">Invalid license key</p>
+      <button class="btn" id="auth-btn" onclick="doAuth()">Authenticate</button>
+      <div class="status-msg" id="status-text"></div>
+    </div>
   </div>
-</div>
 
-<script>
-  // ── PARTICLES ──
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
+  <!-- ════════════ PAGE 2: SESSION CODE ════════════ -->
+  <div class="page" id="page-code">
+    <div class="card">
+      <div class="logo-wrap">
+        <div class="logo">LUCAS CHEATS</div>
+        <div class="logo-sub">Enter Session Code</div>
+        <div class="logo-line"></div>
+      </div>
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+      <p class="hint">
+        Run the EXE on your PC.<br>
+        A session code will appear in the terminal.<br>
+        Enter it below to connect remotely.
+      </p>
 
-  for (let i = 0; i < 60; i++) {
-    particles.push({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      r: Math.random() * 1.5 + 0.5,
-      c: Math.random() > 0.5 ? 'rgba(255,26,26,' : 'rgba(0,245,255,'
-    });
-  }
+      <div class="input-group">
+        <label>Session Code</label>
+        <input type="text" id="session-code-input" placeholder="LC-XXXXXX" autocomplete="off" spellcheck="false"
+          style="text-transform:uppercase; letter-spacing:4px; font-size:1rem; text-align:center;" />
+      </div>
 
-  function drawParticles() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.c + (Math.random() * 0.4 + 0.2) + ')';
-      ctx.fill();
-    });
+      <p class="error-msg" id="code-error">Invalid code or EXE not running</p>
+      <button class="btn" id="connect-btn" onclick="connectSession()">Connect to EXE</button>
+      <div class="status-msg" id="status-text2"></div>
+    </div>
+  </div>
 
-    // Connect nearby particles
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 100) {
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(255,26,26,' + (1 - dist / 100) * 0.12 + ')';
-          ctx.lineWidth = 0.5;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
-      }
-    }
-    requestAnimationFrame(drawParticles);
-  }
-  drawParticles();
+  <!-- ════════════ PAGE 3: CONTROL PANEL ════════════ -->
+  <div class="page" id="page-control">
+    <div class="card" style="width:460px;">
+      <div class="logo-wrap">
+        <div class="logo">LUCAS CHEATS</div>
+        <div class="logo-sub">Remote Control</div>
+        <div class="logo-line"></div>
+      </div>
 
-  // ── CONFIG ──
-  const RELAY_URL = 'wss://lucas-cheats-relay.onrender.com';
-  const KEYAUTH_CONFIG = {  name: "streamres", 
-    ownerid: "xyk3sgyp9e",  version: '1.0' };
+      <div class="session-box">
+        <div class="label">Active Session</div>
+        <div class="code" id="active-code">—</div>
+        <div class="conn-status">
+          <span class="dot online" id="conn-dot"></span>
+          <span id="conn-label">CONNECTED</span>
+        </div>
+      </div>
 
-  let ws = null, sessionCode = null;
+      <div class="btn-grid">
+        <button class="btn" onclick="sendCmd('load')">Load Aimbot</button>
+        <button class="btn-outline btn" onclick="sendCmd('toggle')">Toggle</button>
+        <button class="btn-outline btn" onclick="sendCmd('bind')">Bind Key</button>
+        <button class="btn-outline btn" onclick="sendCmd('location')">Chams Menu</button>
+        <button class="btn btn-danger btn-full" onclick="sendCmd('exit')">Exit EXE</button>
+      </div>
 
-  function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-  }
+      <div id="control-status">—</div>
+    </div>
+  </div>
 
-  // ── AUTH ──
-  async function doAuth() {
-    const key = document.getElementById('license-key').value.trim();
-    if (!key) return;
-    const authBtn = document.getElementById('auth-btn');
-    const statusEl = document.getElementById('status-text');
-    const errorEl = document.getElementById('auth-error');
-    authBtn.disabled = true;
-    authBtn.innerHTML = '<span class="spinner"></span>Authenticating...';
-    errorEl.classList.remove('show');
-    statusEl.textContent = '';
-
-    if (key.toUpperCase() === 'LC-DEMO') {
-      statusEl.style.color = '#00f5ff';
-      statusEl.textContent = '✓ Demo mode activated';
-      authBtn.disabled = false;
-      authBtn.innerHTML = 'Authenticate';
-      setTimeout(() => showPage('page-code'), 700);
-      return;
-    }
-
-    try {
-      const res = await fetch('https://keyauth.win/api/1.2/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ type: 'license', key, ownerid: KEYAUTH_CONFIG.ownerid, name: KEYAUTH_CONFIG.appid, ver: KEYAUTH_CONFIG.version })
-      });
-      const data = await res.json();
-      if (data.success) {
-        statusEl.style.color = '#00f5ff';
-        statusEl.textContent = '✓ Authenticated';
-        setTimeout(() => showPage('page-code'), 700);
-      } else {
-        errorEl.textContent = '✗ ' + (data.message || 'Invalid license key');
-        errorEl.classList.add('show');
-      }
-    } catch (err) {
-      errorEl.textContent = '✗ Auth server unreachable';
-      errorEl.classList.add('show');
-    }
-    authBtn.disabled = false;
-    authBtn.innerHTML = 'Authenticate';
-  }
-
-  document.getElementById('license-key').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
-
-  // ── CONNECT SESSION ──
-  function connectSession() {
-    const code = document.getElementById('session-code-input').value.trim().toUpperCase();
-    if (!code) return;
-    const btn = document.getElementById('connect-btn');
-    const statusEl = document.getElementById('status-text2');
-    const errorEl = document.getElementById('code-error');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Connecting...';
-    errorEl.classList.remove('show');
-    statusEl.textContent = '';
-
-    ws = new WebSocket(RELAY_URL);
-    let connected = false;
-    const timeout = setTimeout(() => {
-      if (!connected) {
-        ws.close();
-        errorEl.textContent = '✗ Relay server unreachable';
-        errorEl.classList.add('show');
-        btn.disabled = false;
-        btn.innerHTML = 'Connect to EXE';
-      }
-    }, 8000);
-
-    ws.onopen = () => {
-      connected = true;
-      clearTimeout(timeout);
-      ws.send(JSON.stringify({ type: 'join_web', code }));
-      statusEl.textContent = 'Waiting for EXE response...';
+  <script>
+    // ─── CONFIG ───
+    const RELAY_URL = 'wss://lucas-cheats-relay.onrender.com';
+    const KEYAUTH_CONFIG = {
+      ownerid: 'YOUR_OWNER_ID',
+      appid: 'YOUR_APP_NAME',
+      version: '1.0'
     };
 
-    ws.onmessage = (event) => {
+    let ws = null;
+    let sessionCode = null;
+
+    // ─── PAGE NAV ───
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // ─── AUTH ───
+    async function doAuth() {
+      const key = document.getElementById('license-key').value.trim();
+      if (!key) return;
+
+      const authBtn = document.getElementById('auth-btn');
+      const statusEl = document.getElementById('status-text');
+      const errorEl = document.getElementById('auth-error');
+
+      authBtn.disabled = true;
+      authBtn.innerHTML = '<span class="spinner"></span>Authenticating...';
+      errorEl.classList.remove('show');
+      statusEl.textContent = '';
+
+      // ── DEMO MODE (check FIRST before API) ──
+      if (key.toUpperCase() === 'LC-DEMO') {
+        statusEl.style.color = '#aaffaa';
+        statusEl.textContent = '✓ Demo mode activated';
+        authBtn.disabled = false;
+        authBtn.innerHTML = 'Authenticate';
+        setTimeout(() => showPage('page-code'), 700);
+        return;
+      }
+
       try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'connected') {
-          sessionCode = code;
-          document.getElementById('active-code').textContent = code;
-          showPage('page-control');
-          btn.disabled = false;
-          btn.innerHTML = 'Connect to EXE';
-        } else if (msg.type === 'error') {
-          errorEl.textContent = '✗ ' + msg.message;
+        const res = await fetch('https://keyauth.win/api/1.2/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            type: 'license',
+            key: key,
+            ownerid: KEYAUTH_CONFIG.ownerid,
+            name: KEYAUTH_CONFIG.appid,
+            ver: KEYAUTH_CONFIG.version
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusEl.style.color = '#aaffaa';
+          statusEl.textContent = '✓ Authenticated';
+          setTimeout(() => showPage('page-code'), 700);
+        } else {
+          errorEl.textContent = '✗ ' + (data.message || 'Invalid license key');
+          errorEl.classList.add('show');
+        }
+      } catch (err) {
+        errorEl.textContent = '✗ Auth server unreachable';
+        errorEl.classList.add('show');
+      }
+
+      authBtn.disabled = false;
+      authBtn.innerHTML = 'Authenticate';
+    }
+
+    document.getElementById('license-key').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doAuth();
+    });
+
+    // ─── CONNECT SESSION ───
+    function connectSession() {
+      const code = document.getElementById('session-code-input').value.trim().toUpperCase();
+      if (!code) return;
+
+      const btn = document.getElementById('connect-btn');
+      const statusEl = document.getElementById('status-text2');
+      const errorEl = document.getElementById('code-error');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Connecting...';
+      errorEl.classList.remove('show');
+      statusEl.textContent = '';
+
+      ws = new WebSocket(RELAY_URL);
+      let connected = false;
+
+      const timeout = setTimeout(() => {
+        if (!connected) {
+          ws.close();
+          errorEl.textContent = '✗ Relay server unreachable';
           errorEl.classList.add('show');
           btn.disabled = false;
           btn.innerHTML = 'Connect to EXE';
-          ws.close();
-        } else if (msg.type === 'response') {
-          const el = document.getElementById('control-status');
-          el.style.color = '#00f5ff';
-          el.textContent = '→ ' + msg.text;
-          setTimeout(() => { el.style.color = 'rgba(232,232,255,0.35)'; }, 3000);
         }
-      } catch (e) {}
-    };
+      }, 8000);
 
-    ws.onclose = () => {
-      const dot = document.getElementById('conn-dot');
-      const label = document.getElementById('conn-label');
-      if (dot && dot.classList.contains('online')) {
-        dot.className = 'dot offline';
-        label.textContent = 'DISCONNECTED';
-        document.getElementById('control-status').textContent = '⚠ Connection lost';
-      }
-    };
-  }
+      ws.onopen = () => {
+        connected = true;
+        clearTimeout(timeout);
+        ws.send(JSON.stringify({ type: 'join_web', code }));
+        statusEl.textContent = 'Waiting for EXE response...';
+      };
 
-  document.getElementById('session-code-input').addEventListener('keydown', e => { if (e.key === 'Enter') connectSession(); });
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'connected') {
+            sessionCode = code;
+            document.getElementById('active-code').textContent = code;
+            showPage('page-control');
+            btn.disabled = false;
+            btn.innerHTML = 'Connect to EXE';
+          } else if (msg.type === 'error') {
+            errorEl.textContent = '✗ ' + msg.message;
+            errorEl.classList.add('show');
+            btn.disabled = false;
+            btn.innerHTML = 'Connect to EXE';
+            ws.close();
+          } else if (msg.type === 'response') {
+            const el = document.getElementById('control-status');
+            el.style.color = '#ffffff';
+            el.textContent = '→ ' + msg.text;
+            setTimeout(() => { el.style.color = 'rgba(255,255,255,0.4)'; }, 3000);
+          }
+        } catch (e) { }
+      };
 
-  // ── SEND COMMAND ──
-  function sendCmd(action) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      document.getElementById('control-status').textContent = '⚠ Not connected';
-      return;
+      ws.onclose = () => {
+        const dot = document.getElementById('conn-dot');
+        const label = document.getElementById('conn-label');
+        if (dot && dot.classList.contains('online')) {
+          dot.className = 'dot offline';
+          label.textContent = 'DISCONNECTED';
+          document.getElementById('control-status').textContent = '⚠ Connection lost';
+        }
+      };
     }
-    ws.send(JSON.stringify({ type: 'command', action }));
-    document.getElementById('control-status').textContent = '→ Sending ' + action + '...';
-  }
-</script>
+
+    document.getElementById('session-code-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') connectSession();
+    });
+
+    // ─── SEND COMMAND ───
+    function sendCmd(action) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        document.getElementById('control-status').textContent = '⚠ Not connected';
+        return;
+      }
+      ws.send(JSON.stringify({ type: 'command', action }));
+      document.getElementById('control-status').textContent = '→ Sending ' + action + '...';
+    }
+  </script>
 </body>
+
 </html>
