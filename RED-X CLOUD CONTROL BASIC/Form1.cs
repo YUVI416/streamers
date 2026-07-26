@@ -285,7 +285,7 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             waitPressKey = true;
         }
 
-        // ─── Generate session code (e.g. RED-X-A1B2C3) ───
+        // ─── Generate session code (e.g. LC-A1B2C3) ───
         private string GenerateSessionCode()
         {
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -293,7 +293,7 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             var code = new char[6];
             for (int i = 0; i < 6; i++)
                 code[i] = chars[rng.Next(chars.Length)];
-            return "RED-X-" + new string(code);
+            return "LC-" + new string(code);
         }
 
         // ─── Print styled console banner ───
@@ -303,33 +303,35 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Clear();
 
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
-            Console.WriteLine("  ██████╗ ███████╗██████╗       ██╗  ██╗");
-            Console.WriteLine("  ██╔══██╗██╔════╝██╔══██╗      ╚██╗██╔╝");
-            Console.WriteLine("  ██████╔╝█████╗  ██║  ██║       ╚███╔╝ ");
-            Console.WriteLine("  ██╔══██╗██╔══╝  ██║  ██║       ██╔██╗ ");
-            Console.WriteLine("  ██║  ██║███████╗██████╔╝██╗   ██╔╝ ██╗");
-            Console.WriteLine("  ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝   ╚═╝  ╚═╝");
+            Console.WriteLine("  ██╗     ██╗   ██╗ ██████╗ █████╗ ███████╗");
+            Console.WriteLine("  ██║     ██║   ██║██╔════╝██╔══██╗██╔════╝");
+            Console.WriteLine("  ██║     ██║   ██║██║     ███████║███████╗");
+            Console.WriteLine("  ██║     ██║   ██║██║     ██╔══██║╚════██║");
+            Console.WriteLine("  ███████╗╚██████╔╝╚██████╗██║  ██║███████║");
+            Console.WriteLine("  ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("            C H E A T S   v1.0");
             Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("  ╔════════════════════════════════════════════╗");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("  ║       RED-X CLOUD CONTROL  v1.0           ║");
+            Console.WriteLine("  ║          LUCAS CHEATS  v1.0               ║");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("  ╠════════════════════════════════════════════╣");
             Console.WriteLine("  ║                                            ║");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("  ║  SESSION CODE:  ");
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"  {code,-10}");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("              ║");
+            Console.WriteLine("           ║");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("  ║                                            ║");
-            Console.WriteLine("  ║  Enter this code in the Web Panel to      ║");
-            Console.WriteLine("  ║  connect and control remotely.             ║");
+            Console.WriteLine("  ║  Enter this code in Web Panel to connect  ║");
+            Console.WriteLine("  ║  This window closes after connection.      ║");
             Console.WriteLine("  ║                                            ║");
             Console.WriteLine("  ╚════════════════════════════════════════════╝");
             Console.WriteLine();

@@ -3,27 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RED-X CLOUD CONTROL</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <title>LUCAS CHEATS - Cloud Control</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body, html {
       height: 100%;
-      font-family: 'Orbitron', sans-serif;
-      background: #0a0a0a;
-      color: #eee;
+      font-family: 'Inter', sans-serif;
+      background: #000000;
+      color: #ffffff;
       overflow: hidden;
     }
 
-    #particles-js {
+    /* ─── GRID BACKGROUND ─── */
+    body::before {
+      content: '';
       position: fixed;
-      width: 100%;
-      height: 100%;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
       z-index: 0;
-      background: linear-gradient(135deg, #0d0000 0%, #1a0505 50%, #0d0000 100%);
+    }
+
+    /* Radial glow center */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.04) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
     }
 
     /* ─── PAGES ─── */
@@ -35,331 +50,398 @@
       height: 100vh;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
     }
     .page.active { display: flex; }
 
     /* ─── CARD ─── */
     .card {
-      background: rgba(15, 0, 0, 0.75);
-      border: 1px solid rgba(229, 9, 20, 0.25);
-      border-radius: 16px;
-      backdrop-filter: blur(12px);
-      box-shadow:
-        0 0 40px rgba(229, 9, 20, 0.15),
-        0 0 80px rgba(229, 9, 20, 0.07),
-        inset 0 0 20px rgba(229, 9, 20, 0.05);
+      background: rgba(10, 10, 10, 0.95);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
       padding: 2.8rem 2.5rem;
       width: 420px;
       text-align: center;
-      animation: fadeIn 0.4s ease;
+      animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 25px 80px rgba(0,0,0,0.8),
+        0 0 60px rgba(255,255,255,0.03);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     /* ─── LOGO ─── */
+    .logo-wrap { margin-bottom: 2rem; }
     .logo {
-      font-size: 1.7rem;
+      font-size: 1.6rem;
       font-weight: 900;
-      letter-spacing: 3px;
-      color: #e50914;
-      text-shadow: 0 0 10px #e5091466, 0 0 30px #e5091433;
-      margin-bottom: 0.3rem;
+      letter-spacing: 4px;
+      color: #ffffff;
+      text-transform: uppercase;
     }
     .logo-sub {
-      font-size: 0.65rem;
-      color: #ffffff44;
-      letter-spacing: 4px;
-      margin-bottom: 2rem;
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 5px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+    .logo-line {
+      width: 40px; height: 2px;
+      background: #fff;
+      margin: 12px auto 0;
+      border-radius: 2px;
     }
 
     /* ─── INPUTS ─── */
     .input-group {
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
       text-align: left;
     }
     .input-group label {
       display: block;
-      font-size: 0.65rem;
-      color: #ff4444aa;
-      letter-spacing: 2px;
-      margin-bottom: 0.5rem;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
     .input-group input {
       width: 100%;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(229, 9, 20, 0.3);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-family: 'Orbitron', sans-serif;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 0.9rem;
       color: #fff;
       outline: none;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
     .input-group input:focus {
-      border-color: #e50914;
-      box-shadow: 0 0 15px rgba(229, 9, 20, 0.3);
-      background: rgba(229, 9, 20, 0.05);
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.07);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
     }
-    .input-group input::placeholder { color: #ffffff33; }
+    .input-group input::placeholder {
+      color: rgba(255,255,255,0.2);
+      font-family: 'JetBrains Mono', monospace;
+    }
 
-    /* ─── BUTTONS ─── */
+    /* ─── MAIN BUTTON ─── */
     .btn {
       cursor: pointer;
       width: 100%;
-      background: transparent;
-      color: #ccc;
-      border: 1.5px solid #e50914;
-      padding: 13px 28px;
-      margin-top: 0.5rem;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.85rem;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 14px 28px;
+      margin-top: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
       font-weight: 700;
-      border-radius: 8px;
-      letter-spacing: 2px;
+      border-radius: 10px;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      transition: all 0.25s ease;
-      box-shadow: 0 0 10px rgba(229, 9, 20, 0.2);
+      transition: all 0.2s;
       position: relative;
       overflow: hidden;
     }
-    .btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 30%, rgba(229,9,20,0.1) 100%);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
     .btn:hover {
-      background: rgba(229, 9, 20, 0.15);
-      color: #fff;
-      box-shadow: 0 0 25px rgba(229, 9, 20, 0.5), inset 0 0 10px rgba(229, 9, 20, 0.1);
+      background: rgba(255,255,255,0.88);
       transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(255,255,255,0.15);
     }
-    .btn:hover::before { opacity: 1; }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
-    /* ─── CONTROL BUTTONS (grid) ─── */
+    /* ─── OUTLINE BUTTON ─── */
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.4);
+      box-shadow: 0 4px 20px rgba(255,255,255,0.05);
+    }
+
+    /* ─── DANGER BUTTON ─── */
+    .btn-danger {
+      background: transparent;
+      color: #ff4444;
+      border: 1px solid rgba(255,68,68,0.4);
+    }
+    .btn-danger:hover {
+      background: rgba(255,68,68,0.1);
+      border-color: #ff4444;
+      box-shadow: 0 4px 20px rgba(255,68,68,0.15);
+    }
+
+    /* ─── CONTROL GRID ─── */
     .btn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
       margin-top: 1.5rem;
     }
-    .btn-grid .btn {
+    .btn-grid .btn, .btn-grid .btn-outline {
       width: auto;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       padding: 12px 10px;
       margin-top: 0;
-    }
-    .btn-danger {
-      border-color: #ff2222;
-      color: #ff6666;
-    }
-    .btn-danger:hover {
-      background: rgba(255, 30, 30, 0.2);
-      box-shadow: 0 0 25px rgba(255, 30, 30, 0.5);
-    }
-    .btn-success {
-      border-color: #00ff88;
-      color: #00ff88;
-    }
-    .btn-success:hover {
-      background: rgba(0, 255, 136, 0.1);
-      box-shadow: 0 0 25px rgba(0, 255, 136, 0.3);
+      letter-spacing: 1.5px;
     }
     .btn-full { grid-column: 1 / -1; }
 
     /* ─── STATUS ─── */
-    #status-text, #control-status {
-      margin-top: 1.2rem;
-      font-size: 0.8rem;
-      min-height: 1.5rem;
-      letter-spacing: 1px;
+    .status-msg {
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(255,255,255,0.4);
+      min-height: 1.2rem;
+      letter-spacing: 0.5px;
       transition: all 0.3s;
     }
 
-    /* ─── SESSION CODE DISPLAY ─── */
-    .session-info {
-      background: rgba(229, 9, 20, 0.08);
-      border: 1px solid rgba(229, 9, 20, 0.2);
-      border-radius: 8px;
-      padding: 10px;
+    /* ─── ERROR MSG ─── */
+    .error-msg {
+      font-size: 0.72rem;
+      color: #ff5555;
+      margin-top: 0.6rem;
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .error-msg.show { display: block; }
+
+    /* ─── SESSION BOX ─── */
+    .session-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px;
       margin-bottom: 1.5rem;
-      font-size: 0.7rem;
-      color: #ffffff55;
-      letter-spacing: 2px;
     }
-    .session-info span {
-      display: block;
-      font-size: 1.1rem;
-      color: #e50914;
-      font-weight: 700;
+    .session-box .label {
+      font-size: 0.55rem;
       letter-spacing: 4px;
-      text-shadow: 0 0 10px #e5091488;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+    .session-box .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 4px;
+      margin-top: 4px;
     }
 
-    /* ─── CONNECTION INDICATOR ─── */
-    .conn-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
+    /* ─── CONNECTION STATUS ─── */
+    .conn-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.4);
+    }
+    .dot {
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: #333;
-      margin-right: 6px;
-      vertical-align: middle;
+      background: #444;
       transition: all 0.3s;
     }
-    .conn-dot.online { background: #00ff88; box-shadow: 0 0 8px #00ff88; animation: pulse 2s infinite; }
-    .conn-dot.offline { background: #ff3333; box-shadow: 0 0 8px #ff3333; }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+    .dot.online {
+      background: #fff;
+      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+      animation: blink 2s infinite;
+    }
+    .dot.offline { background: #ff4444; box-shadow: 0 0 8px rgba(255,68,68,0.4); }
+    @keyframes blink {
+      0%,100% { opacity:1; } 50% { opacity:0.3; }
     }
 
-    /* ─── LOADING SPINNER ─── */
+    /* ─── SPINNER ─── */
     .spinner {
       display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid #e5091433;
-      border-top: 2px solid #e50914;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top: 2px solid #000;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.7s linear infinite;
       vertical-align: middle;
       margin-right: 8px;
     }
+    .btn-outline .spinner,
+    .btn-danger .spinner { border-color: rgba(255,255,255,0.2); border-top-color: #fff; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ─── DIVIDER ─── */
     .divider {
       display: flex; align-items: center; gap: 10px;
-      margin: 1.2rem 0; color: #ffffff22; font-size: 0.6rem; letter-spacing: 2px;
+      margin: 1.2rem 0;
+      color: rgba(255,255,255,0.15);
+      font-size: 0.55rem;
+      letter-spacing: 2px;
     }
     .divider::before, .divider::after {
-      content: ''; flex: 1; height: 1px; background: rgba(229,9,20,0.15);
+      content: ''; flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
     }
 
-    .error-msg { color: #ff4444; font-size: 0.75rem; margin-top: 0.5rem; display: none; }
-    .error-msg.show { display: block; }
+    /* ─── CONTROL STATUS ─── */
+    #control-status {
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(255,255,255,0.5);
+      min-height: 1.2rem;
+      transition: all 0.3s;
+    }
+
+    /* ─── HINT TEXT ─── */
+    .hint {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.25);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.3px;
+    }
   </style>
 </head>
 <body>
-  <div id="particles-js"></div>
 
-  <!-- ════════════════════════════ PAGE 1: KeyAuth Login ════════════════════════════ -->
+  <!-- ════════════ PAGE 1: LICENSE ════════════ -->
   <div class="page active" id="page-login">
     <div class="card">
-      <div class="logo">RED-X</div>
-      <div class="logo-sub">CLOUD CONTROL SYSTEM</div>
-
-      <div class="input-group">
-        <label>LICENSE KEY</label>
-        <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" />
+      <div class="logo-wrap">
+        <div class="logo">LUCAS CHEATS</div>
+        <div class="logo-sub">Cloud Control System</div>
+        <div class="logo-line"></div>
       </div>
 
-      <p class="error-msg" id="auth-error">❌ Invalid license key</p>
-      <button class="btn" id="auth-btn" onclick="doAuth()">AUTHENTICATE</button>
-      <div id="status-text" style="color:#e50914aa;"></div>
+      <div class="input-group">
+        <label>License Key</label>
+        <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <p class="error-msg" id="auth-error">Invalid license key</p>
+      <button class="btn" id="auth-btn" onclick="doAuth()">Authenticate</button>
+      <div class="status-msg" id="status-text"></div>
     </div>
   </div>
 
-  <!-- ════════════════════════════ PAGE 2: Enter Session Code ════════════════════════════ -->
+  <!-- ════════════ PAGE 2: SESSION CODE ════════════ -->
   <div class="page" id="page-code">
     <div class="card">
-      <div class="logo">RED-X</div>
-      <div class="logo-sub">ENTER SESSION CODE</div>
+      <div class="logo-wrap">
+        <div class="logo">LUCAS CHEATS</div>
+        <div class="logo-sub">Enter Session Code</div>
+        <div class="logo-line"></div>
+      </div>
 
-      <p style="font-size:0.7rem; color:#ffffff55; margin-bottom:1.5rem; line-height:1.8; letter-spacing:1px;">
+      <p class="hint">
         Run the EXE on your PC.<br>
         A session code will appear in the terminal.<br>
-        Enter it below to connect.
+        Enter it below to connect remotely.
       </p>
 
       <div class="input-group">
-        <label>SESSION CODE</label>
-        <input type="text" id="session-code-input" placeholder="RED-X-XXXXXX" autocomplete="off" 
-               style="text-transform:uppercase; letter-spacing:3px; font-size:1.1rem; text-align:center;" />
+        <label>Session Code</label>
+        <input type="text" id="session-code-input" placeholder="LC-XXXXXX"
+               autocomplete="off" spellcheck="false"
+               style="text-transform:uppercase; letter-spacing:4px; font-size:1rem; text-align:center;" />
       </div>
 
-      <p class="error-msg" id="code-error">❌ Invalid code or EXE not running</p>
-      <button class="btn" id="connect-btn" onclick="connectSession()">CONNECT TO EXE</button>
-      <div id="status-text2" style="color:#e50914aa; margin-top:0.8rem; font-size:0.75rem;"></div>
+      <p class="error-msg" id="code-error">Invalid code or EXE not running</p>
+      <button class="btn" id="connect-btn" onclick="connectSession()">Connect to EXE</button>
+      <div class="status-msg" id="status-text2"></div>
     </div>
   </div>
 
-  <!-- ════════════════════════════ PAGE 3: Control Panel ════════════════════════════ -->
+  <!-- ════════════ PAGE 3: CONTROL PANEL ════════════ -->
   <div class="page" id="page-control">
     <div class="card" style="width:460px;">
-      <div class="logo">RED-X</div>
-      <div class="logo-sub">CLOUD CONTROL</div>
+      <div class="logo-wrap">
+        <div class="logo">LUCAS CHEATS</div>
+        <div class="logo-sub">Remote Control</div>
+        <div class="logo-line"></div>
+      </div>
 
-      <div class="session-info">
-        SESSION
-        <span id="active-code">—</span>
-        <div style="margin-top:4px;">
-          <span class="conn-dot online" id="conn-dot"></span>
-          <span id="conn-label" style="font-size:0.65rem; letter-spacing:2px; color:#ffffff66;">CONNECTED</span>
+      <div class="session-box">
+        <div class="label">Active Session</div>
+        <div class="code" id="active-code">—</div>
+        <div class="conn-status">
+          <span class="dot online" id="conn-dot"></span>
+          <span id="conn-label">CONNECTED</span>
         </div>
       </div>
 
       <div class="btn-grid">
-        <button class="btn" onclick="sendCmd('load')">⚡ LOAD AIMBOT</button>
-        <button class="btn" onclick="sendCmd('toggle')">🔄 TOGGLE</button>
-        <button class="btn" onclick="sendCmd('bind')">🎯 BIND KEY</button>
-        <button class="btn" onclick="sendCmd('location')">💉 CHAMS MENU</button>
-        <button class="btn btn-danger btn-full" onclick="sendCmd('exit')">✕ EXIT EXE</button>
+        <button class="btn" onclick="sendCmd('load')">Load Aimbot</button>
+        <button class="btn-outline btn" onclick="sendCmd('toggle')">Toggle</button>
+        <button class="btn-outline btn" onclick="sendCmd('bind')">Bind Key</button>
+        <button class="btn-outline btn" onclick="sendCmd('location')">Chams Menu</button>
+        <button class="btn btn-danger btn-full" onclick="sendCmd('exit')">Exit EXE</button>
       </div>
 
-      <div id="control-status" style="color:#e50914; text-align:center;">—</div>
+      <div id="control-status">—</div>
     </div>
   </div>
 
   <script>
-    // ─────────────────────────────────────────────────────────
-    // CONFIG - RELAY SERVER URL (after deploying on Glitch)
-    // ─────────────────────────────────────────────────────────
-    // REPLACE THIS with your actual Glitch project URL:
+    // ─── CONFIG ───
     const RELAY_URL = 'wss://lucas-cheats-relay.onrender.com';
-
-    // KeyAuth Config
     const KEYAUTH_CONFIG = {
-      ownerid: 'YOUR_OWNER_ID',    // Your KeyAuth owner ID
-      appid: 'YOUR_APP_ID',        // Your KeyAuth app ID
+      ownerid: 'YOUR_OWNER_ID',
+      appid:   'YOUR_APP_NAME',
       version: '1.0'
     };
 
     let ws = null;
     let sessionCode = null;
-    let authedUser = null;
 
-    // ─── PAGE NAVIGATION ───
+    // ─── PAGE NAV ───
     function showPage(id) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
 
-    // ─── KeyAuth Authentication ───
+    // ─── AUTH ───
     async function doAuth() {
       const key = document.getElementById('license-key').value.trim();
       if (!key) return;
 
-      const authBtn = document.getElementById('auth-btn');
+      const authBtn  = document.getElementById('auth-btn');
       const statusEl = document.getElementById('status-text');
-      const errorEl = document.getElementById('auth-error');
+      const errorEl  = document.getElementById('auth-error');
 
       authBtn.disabled = true;
-      authBtn.innerHTML = '<span class="spinner"></span>AUTHENTICATING...';
+      authBtn.innerHTML = '<span class="spinner"></span>Authenticating...';
       errorEl.classList.remove('show');
       statusEl.textContent = '';
 
+      // ── DEMO MODE (check FIRST before API) ──
+      if (key.toUpperCase() === 'LC-DEMO') {
+        statusEl.style.color = '#aaffaa';
+        statusEl.textContent = '✓ Demo mode activated';
+        authBtn.disabled = false;
+        authBtn.innerHTML = 'Authenticate';
+        setTimeout(() => showPage('page-code'), 700);
+        return;
+      }
+
       try {
-        // KeyAuth API call
         const res = await fetch('https://keyauth.win/api/1.2/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -371,158 +453,110 @@
             ver: KEYAUTH_CONFIG.version
           })
         });
-
         const data = await res.json();
-
         if (data.success) {
-          authedUser = data.info || {};
-          statusEl.style.color = '#00ff88';
-          statusEl.textContent = '✅ Authenticated!';
-          setTimeout(() => showPage('page-code'), 800);
+          statusEl.style.color = '#aaffaa';
+          statusEl.textContent = '✓ Authenticated';
+          setTimeout(() => showPage('page-code'), 700);
         } else {
-          errorEl.textContent = '❌ ' + (data.message || 'Invalid license key');
+          errorEl.textContent = '✗ ' + (data.message || 'Invalid license key');
           errorEl.classList.add('show');
         }
       } catch (err) {
-        // DEMO MODE: if KeyAuth fails (CORS/network), bypass for testing
-        // Remove this block in production!
-        if (key.toUpperCase() === 'RED-X-DEMO') {
-          authedUser = { username: 'demo' };
-          statusEl.style.color = '#00ff88';
-          statusEl.textContent = '✅ Demo mode!';
-          setTimeout(() => showPage('page-code'), 800);
-          authBtn.disabled = false;
-          authBtn.innerHTML = 'AUTHENTICATE';
-          return;
-        }
-        errorEl.textContent = '❌ Auth server unreachable. Use RED-X-DEMO for testing.';
+        errorEl.textContent = '✗ Auth server unreachable';
         errorEl.classList.add('show');
       }
 
       authBtn.disabled = false;
-      authBtn.innerHTML = 'AUTHENTICATE';
+      authBtn.innerHTML = 'Authenticate';
     }
 
-    // ─── Enter to submit on license key ───
-    document.getElementById('license-key').addEventListener('keydown', (e) => {
+    document.getElementById('license-key').addEventListener('keydown', e => {
       if (e.key === 'Enter') doAuth();
     });
 
-    // ─── Connect to session via relay ───
+    // ─── CONNECT SESSION ───
     function connectSession() {
-      const code = document.getElementById('session-code-input').value.trim().toUpperCase();
+      const code    = document.getElementById('session-code-input').value.trim().toUpperCase();
       if (!code) return;
 
-      const btn = document.getElementById('connect-btn');
+      const btn      = document.getElementById('connect-btn');
       const statusEl = document.getElementById('status-text2');
-      const errorEl = document.getElementById('code-error');
+      const errorEl  = document.getElementById('code-error');
 
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>CONNECTING...';
+      btn.innerHTML = '<span class="spinner"></span>Connecting...';
       errorEl.classList.remove('show');
       statusEl.textContent = '';
 
-      // Connect to relay
       ws = new WebSocket(RELAY_URL);
       let connected = false;
-      let timeout = setTimeout(() => {
+
+      const timeout = setTimeout(() => {
         if (!connected) {
           ws.close();
-          errorEl.textContent = '❌ Relay server unreachable';
+          errorEl.textContent = '✗ Relay server unreachable';
           errorEl.classList.add('show');
           btn.disabled = false;
-          btn.innerHTML = 'CONNECT TO EXE';
+          btn.innerHTML = 'Connect to EXE';
         }
       }, 8000);
 
       ws.onopen = () => {
         connected = true;
         clearTimeout(timeout);
-        // Send join request
         ws.send(JSON.stringify({ type: 'join_web', code }));
-        statusEl.textContent = '🔄 Waiting for EXE response...';
+        statusEl.textContent = 'Waiting for EXE response...';
       };
 
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
-
           if (msg.type === 'connected') {
             sessionCode = code;
             document.getElementById('active-code').textContent = code;
             showPage('page-control');
             btn.disabled = false;
-            btn.innerHTML = 'CONNECT TO EXE';
-          }
-          else if (msg.type === 'error') {
-            errorEl.textContent = '❌ ' + msg.message;
+            btn.innerHTML = 'Connect to EXE';
+          } else if (msg.type === 'error') {
+            errorEl.textContent = '✗ ' + msg.message;
             errorEl.classList.add('show');
             btn.disabled = false;
-            btn.innerHTML = 'CONNECT TO EXE';
+            btn.innerHTML = 'Connect to EXE';
             ws.close();
-          }
-          else if (msg.type === 'response') {
-            // Status update from EXE
+          } else if (msg.type === 'response') {
             const el = document.getElementById('control-status');
-            el.textContent = msg.text;
-            el.style.color = '#00ff88';
-            setTimeout(() => el.style.color = '#e50914', 2000);
+            el.style.color = '#ffffff';
+            el.textContent = '→ ' + msg.text;
+            setTimeout(() => { el.style.color = 'rgba(255,255,255,0.4)'; }, 3000);
           }
         } catch(e) {}
       };
 
       ws.onclose = () => {
-        // If already on control page, show disconnected
-        const dot = document.getElementById('conn-dot');
+        const dot   = document.getElementById('conn-dot');
         const label = document.getElementById('conn-label');
-        if (dot) {
-          dot.className = 'conn-dot offline';
+        if (dot && dot.classList.contains('online')) {
+          dot.className   = 'dot offline';
           label.textContent = 'DISCONNECTED';
-          document.getElementById('control-status').textContent = '⚠️ Connection lost';
+          document.getElementById('control-status').textContent = '⚠ Connection lost';
         }
       };
     }
 
-    // ─── Enter to submit session code ───
-    document.getElementById('session-code-input').addEventListener('keydown', (e) => {
+    document.getElementById('session-code-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') connectSession();
     });
 
-    // ─── Send command to EXE ───
+    // ─── SEND COMMAND ───
     function sendCmd(action) {
       if (!ws || ws.readyState !== WebSocket.OPEN) {
-        document.getElementById('control-status').textContent = '⚠️ Not connected';
+        document.getElementById('control-status').textContent = '⚠ Not connected';
         return;
       }
       ws.send(JSON.stringify({ type: 'command', action }));
-      document.getElementById('control-status').textContent = `⚡ Sent: ${action.toUpperCase()}...`;
+      document.getElementById('control-status').textContent = '→ Sending ' + action + '...';
     }
-
-    // ─── Particles ───
-    particlesJS('particles-js', {
-      particles: {
-        number: { value: 200, density: { enable: true, value_area: 900 } },
-        color: { value: '#ff0000' },
-        shape: { type: 'circle' },
-        opacity: { value: 0.5, random: true },
-        size: { value: 3, random: true },
-        line_linked: {
-          enable: true, distance: 110,
-          color: '#ff0000', opacity: 0.4, width: 1
-        },
-        move: { enable: true, speed: 2, random: true, bounce: false }
-      },
-      interactivity: {
-        detect_on: 'canvas',
-        events: {
-          onhover: { enable: true, mode: 'repulse' },
-          onclick: { enable: true, mode: 'push' },
-          resize: true
-        },
-        modes: { repulse: { distance: 60, duration: 0.5 }, push: { particles_nb: 3 } }
-      },
-      retina_detect: true
-    });
   </script>
 </body>
 </html>
