@@ -1,4 +1,5 @@
-﻿// All necessary imports for Forms, Memory Handling, DLL Injection, etc.
+// RED-X CLOUD CONTROL - Form1.cs
+// Session code + WebSocket relay client (no WiFi IP needed)
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -23,9 +25,24 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 {
     public partial class Form1 : Form
     {
-        // Local web server for mobile remote control
-        private HttpListener httpListener;
-        private Thread listenerThread;
+        // ─── Relay WebSocket ───
+        private ClientWebSocket relayWs;
+        private Thread relayThread;
+        private string sessionCode;
+        private bool webConnected = false;
+
+        // RELAY SERVER URL - update after deploying on Glitch
+        private const string RELAY_URL = "wss://lucas-cheats-relay.onrender.com";
+
+        // Console window handle
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool AllocConsole();
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool FreeConsole();
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         // Constants for Windows API interaction
         private const int SW_HIDE = 0;
@@ -33,7 +50,7 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 256;
 
-        // Hook variables for listening to keyboard keys
+        // Hook variables
         private static IntPtr hookID = IntPtr.Zero;
         private static IntPtr hookID1 = IntPtr.Zero;
         private static IntPtr hookID2 = IntPtr.Zero;
@@ -45,7 +62,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private static IntPtr hookID8 = IntPtr.Zero;
         private static IntPtr hookID9 = IntPtr.Zero;
 
-        // Delegates for multiple key hook callbacks
         private Form1.LowLevelKeyboardProc hookCallback;
         private Form1.LowLevelKeyboardProc hookCallback1;
         private Form1.LowLevelKeyboardProc hookCallback2;
@@ -57,7 +73,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private Form1.LowLevelKeyboardProc hookCallback8;
         private Form1.LowLevelKeyboardProc hookCallback9;
 
-        // Keybind listener flags
         private bool waitPressKey;
         private bool waitPressKey1;
         private bool waitPressKey2;
@@ -67,7 +82,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private const int WM_NCLBUTTONDOWN = 161;
         private const int HT_CAPTION = 2;
 
-        // DLL imports for key hook setup
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
@@ -84,21 +98,18 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         private bool isAnimating = false;
-        private readonly tenzo32 TXCmem = new tenzo32(); // Main memory handler
+        private readonly tenzo32 TXCmem = new tenzo32();
 
-        // Emulator process info and AoB pattern for aimbot detection
         private readonly string[] TaskName = { "HD-Player" };
         private readonly int ReadOffset = 0xAA;
         private readonly int WriteOffset = 0xA6;
-        private readonly string AimbotPattern = "FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 00 00 00 00 00 00 00 00 00 00 00 00 A5 43"; // Truncated for clarity
+        private readonly string AimbotPattern = "FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 00 00 00 00 00 00 00 00 00 00 00 00 A5 43";
 
         public Form1()
         {
             InitializeComponent();
 
             this.hookCallback = new Form1.LowLevelKeyboardProc(this.HookCallback);
-
-            // Set all keyboard hooks (bind, toggle, etc.)
             Form1.hookID1 = this.SetHook(this.hookCallback1);
             Form1.hookID2 = this.SetHook(this.hookCallback2);
             Form1.hookID3 = this.SetHook(this.hookCallback3);
@@ -116,24 +127,22 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
             Form1.UnhookWindowsHookEx(Form1.hookID);
+            relayWs?.Abort();
         }
 
         private IntPtr SetHook(Form1.LowLevelKeyboardProc proc)
         {
             using (Process currentProcess = Process.GetCurrentProcess())
+            using (currentProcess.MainModule)
             {
-                using (currentProcess.MainModule)
-                {
-                    IntPtr moduleHandle = Form1.GetModuleHandle((string)null);
-                    return Form1.SetWindowsHookEx(13, proc, moduleHandle, 0U);
-                }
+                IntPtr moduleHandle = Form1.GetModuleHandle((string)null);
+                return Form1.SetWindowsHookEx(13, proc, moduleHandle, 0U);
             }
         }
 
-        // Captures key input to set keybind or trigger toggle
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)256) // WM_KEYDOWN
+            if (nCode >= 0 && wParam == (IntPtr)256)
             {
                 KeysConverter keysConverter = new KeysConverter();
                 string str = keysConverter.ConvertToString((Keys)Marshal.ReadInt32(lParam));
@@ -156,7 +165,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             return Form1.CallNextHookEx(Form1.hookID1, nCode, wParam, lParam);
         }
 
-        // Memory dictionaries for backup and restore
         private readonly Dictionary<long, byte[]> OriginalValue1 = new Dictionary<long, byte[]>();
         private readonly Dictionary<long, byte[]> OriginalValue2 = new Dictionary<long, byte[]>();
         private readonly Dictionary<long, byte[]> ReplacedValue1 = new Dictionary<long, byte[]>();
@@ -164,7 +172,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 
         public bool Aimbot = false;
 
-        // Button to activate Aimbot
         private async void button1_Click(object sender, EventArgs e)
         {
             try
@@ -189,10 +196,8 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                 sta.ForeColor = Color.Green;
                 var stopwatch = Stopwatch.StartNew();
 
-                OriginalValue1.Clear();
-                OriginalValue2.Clear();
-                ReplacedValue1.Clear();
-                ReplacedValue2.Clear();
+                OriginalValue1.Clear(); OriginalValue2.Clear();
+                ReplacedValue1.Clear(); ReplacedValue2.Clear();
 
                 IEnumerable<long> addresses = await TXCmem.Trace(AimbotPattern);
                 if (addresses == null || !addresses.Any())
@@ -240,7 +245,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             }
         }
 
-        // Restore original memory (turn off aimbot)
         public void AimbotOFF()
         {
             RestoreValues1(OriginalValue1);
@@ -249,7 +253,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             sta.ForeColor = Color.Red;
         }
 
-        // Restore swapped memory (turn on aimbot)
         public void AimbotON()
         {
             RestoreValues1(ReplacedValue1);
@@ -258,7 +261,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             sta.ForeColor = Color.Green;
         }
 
-        // Helper to apply memory values
         private void RestoreValues1(Dictionary<long, byte[]> dictionary)
         {
             foreach (var entry in dictionary)
@@ -270,22 +272,12 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 
         private bool AimbotToggle = false;
 
-        // Toggle aimbot manually via checkbox or bind
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (!AimbotToggle)
-            {
-                AimbotOFF();
-                AimbotToggle = true;
-            }
-            else
-            {
-                AimbotON();
-                AimbotToggle = false;
-            }
+            if (!AimbotToggle) { AimbotOFF(); AimbotToggle = true; }
+            else { AimbotON(); AimbotToggle = false; }
         }
 
-        // When bind button is clicked, listen for key input
         private void bindBtn_Click(object sender, EventArgs e)
         {
             bindBtn.ForeColor = Color.Red;
@@ -293,111 +285,231 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             waitPressKey = true;
         }
 
-        // On form load, hide window and start local web server
+        // ─── Generate session code (e.g. RED-X-A1B2C3) ───
+        private string GenerateSessionCode()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            var rng = new Random();
+            var code = new char[6];
+            for (int i = 0; i < 6; i++)
+                code[i] = chars[rng.Next(chars.Length)];
+            return "RED-X-" + new string(code);
+        }
+
+        // ─── Print styled console banner ───
+        private void PrintConsoleBanner(string code)
+        {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Clear();
+
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine();
+            Console.WriteLine("  ██████╗ ███████╗██████╗       ██╗  ██╗");
+            Console.WriteLine("  ██╔══██╗██╔════╝██╔══██╗      ╚██╗██╔╝");
+            Console.WriteLine("  ██████╔╝█████╗  ██║  ██║       ╚███╔╝ ");
+            Console.WriteLine("  ██╔══██╗██╔══╝  ██║  ██║       ██╔██╗ ");
+            Console.WriteLine("  ██║  ██║███████╗██████╔╝██╗   ██╔╝ ██╗");
+            Console.WriteLine("  ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝   ╚═╝  ╚═╝");
+            Console.WriteLine();
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("  ╔════════════════════════════════════════════╗");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("  ║       RED-X CLOUD CONTROL  v1.0           ║");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("  ╠════════════════════════════════════════════╣");
+            Console.WriteLine("  ║                                            ║");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("  ║  SESSION CODE:  ");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write($"  {code,-10}");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("              ║");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("  ║                                            ║");
+            Console.WriteLine("  ║  Enter this code in the Web Panel to      ║");
+            Console.WriteLine("  ║  connect and control remotely.             ║");
+            Console.WriteLine("  ║                                            ║");
+            Console.WriteLine("  ╚════════════════════════════════════════════╝");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("  [*] Waiting for web connection...");
+            Console.WriteLine("  [*] This window will close automatically.");
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
+        // ─── On Form Load: stealth + start relay ───
         private void Form1_Load(object sender, EventArgs e)
         {
+            // Hide form completely (stealth)
             this.ShowInTaskbar = false;
             this.Opacity = 0;
             this.Hide();
 
-            httpListener = new HttpListener();
-            httpListener.Prefixes.Add("http://+:6969/");
-            httpListener.Start();
+            // Generate session code
+            sessionCode = GenerateSessionCode();
 
-            listenerThread = new Thread(HandleIncomingRequests);
-            listenerThread.IsBackground = true;
-            listenerThread.Start();
+            // Show console terminal with code
+            AllocConsole();
+            PrintConsoleBanner(sessionCode);
+
+            // Connect to relay server in background
+            relayThread = new Thread(() => StartRelayConnection(sessionCode));
+            relayThread.IsBackground = true;
+            relayThread.Start();
         }
 
-        // Handles HTTP requests from phone (remote control)
-        private void HandleIncomingRequests()
+        // ─── WebSocket connection to relay ───
+        private async void StartRelayConnection(string code)
         {
-            while (httpListener.IsListening)
+            try
             {
-                try
+                relayWs = new ClientWebSocket();
+                var uri = new Uri(RELAY_URL);
+
+                // Connect to relay
+                await relayWs.ConnectAsync(uri, CancellationToken.None);
+
+                // Register as EXE
+                await SendRelayMessage($"{{\"type\":\"register_exe\",\"code\":\"{code}\"}}");
+
+                UpdateConsole("[+] Connected to relay server!");
+                UpdateConsole($"[+] Session code: {code}");
+                UpdateConsole("[*] Waiting for web to connect...");
+
+                // Listen for messages
+                var buffer = new byte[4096];
+                while (relayWs.State == WebSocketState.Open)
                 {
-                    var context = httpListener.GetContext();
-                    var request = context.Request;
-                    var response = context.Response;
-
-                    response.Headers.Add("Access-Control-Allow-Origin", "*");
-                    response.Headers.Add("Access-Control-Allow-Methods", "GET");
-
-                    string result = "";
-
-                    switch (request.RawUrl.ToLower())
+                    var result = await relayWs.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    if (result.MessageType == WebSocketMessageType.Text)
                     {
-                        case "/load":
-                            this.Invoke((MethodInvoker)(() => {
-                                button1.PerformClick();
-                                Application.DoEvents();
-                                Thread.Sleep(50);
-                                result = sta.Text;
-                            }));
-                            break;
-
-                        case "/toggle":
-                            this.Invoke((MethodInvoker)(() => {
-                                checkBox1.Checked = !checkBox1.Checked;
-                                Application.DoEvents();
-                                Thread.Sleep(50);
-                                result = sta.Text;
-                            }));
-                            break;
-
-                        case "/bind":
-                            this.Invoke((MethodInvoker)(() => {
-                                bindBtn.PerformClick();
-                                Application.DoEvents();
-                                Thread.Sleep(50);
-                                result = sta.Text;
-                            }));
-                            break;
-
-                        case "/exit":
-                            this.Invoke((MethodInvoker)(() => {
-                                button2.PerformClick();
-                                Application.DoEvents();
-                                Thread.Sleep(50);
-                                result = sta.Text;
-                            }));
-                            break;
-
-                        case "/location":
-                            this.Invoke((MethodInvoker)(() => {
-                                button3.PerformClick();
-                                Application.DoEvents();
-                                Thread.Sleep(50);
-                                result = sta.Text;
-                            }));
-                            break;
-
-                        case "/status":
-                            this.Invoke((MethodInvoker)(() => result = sta.Text));
-                            break;
-
-                        case "/ping":
-                            result = "Pong";
-                            break;
-
-                        default:
-                            result = "Invalid Endpoint";
-                            break;
+                        string msg = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        await HandleRelayMessage(msg);
                     }
-
-                    byte[] buffer = Encoding.UTF8.GetBytes(result);
-                    response.ContentLength64 = buffer.Length;
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
-                    response.OutputStream.Close();
                 }
-                catch (Exception)
-                {
-                    // Optional logging here
-                }
+            }
+            catch (Exception ex)
+            {
+                UpdateConsole($"[!] Relay error: {ex.Message}");
+                UpdateConsole("[!] Retrying in 5 seconds...");
+                await Task.Delay(5000);
+                StartRelayConnection(code); // Retry
             }
         }
 
-        // Exit button
+        // ─── Handle incoming messages from relay ───
+        private async Task HandleRelayMessage(string raw)
+        {
+            try
+            {
+                // Simple JSON parsing without external libraries
+                if (raw.Contains("\"web_connected\""))
+                {
+                    UpdateConsole("[+] Web panel connected! Closing terminal...");
+                    webConnected = true;
+                    await Task.Delay(1500);
+                    HideConsole();
+                }
+                else if (raw.Contains("\"command\""))
+                {
+                    string action = ExtractJsonValue(raw, "action");
+                    string responseText = "";
+
+                    this.Invoke((MethodInvoker)(() =>
+                    {
+                        switch (action.ToLower())
+                        {
+                            case "load":
+                                button1.PerformClick();
+                                Application.DoEvents();
+                                Thread.Sleep(100);
+                                responseText = sta.Text;
+                                break;
+                            case "toggle":
+                                checkBox1.Checked = !checkBox1.Checked;
+                                Application.DoEvents();
+                                Thread.Sleep(50);
+                                responseText = sta.Text;
+                                break;
+                            case "bind":
+                                bindBtn.PerformClick();
+                                Application.DoEvents();
+                                Thread.Sleep(50);
+                                responseText = sta.Text;
+                                break;
+                            case "location":
+                                button3.PerformClick();
+                                Application.DoEvents();
+                                Thread.Sleep(50);
+                                responseText = sta.Text;
+                                break;
+                            case "exit":
+                                Application.Exit();
+                                break;
+                        }
+                    }));
+
+                    // Send response back to web
+                    if (!string.IsNullOrEmpty(responseText))
+                    {
+                        string escaped = responseText.Replace("\\", "\\\\").Replace("\"", "\\\"");
+                        await SendRelayMessage($"{{\"type\":\"response\",\"text\":\"{escaped}\"}}");
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // ─── Simple JSON value extractor ───
+        private string ExtractJsonValue(string json, string key)
+        {
+            string search = $"\"{key}\":\"";
+            int start = json.IndexOf(search);
+            if (start < 0) return "";
+            start += search.Length;
+            int end = json.IndexOf("\"", start);
+            if (end < 0) return "";
+            return json.Substring(start, end - start);
+        }
+
+        // ─── Send raw JSON string message to relay ───
+        private async Task SendRelayMessage(string json)
+        {
+            if (relayWs?.State != WebSocketState.Open) return;
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            await relayWs.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+
+        // ─── Console helpers ───
+        private void UpdateConsole(string line)
+        {
+            try
+            {
+                Console.ForegroundColor = line.StartsWith("[+]") ? ConsoleColor.Green :
+                                          line.StartsWith("[!]") ? ConsoleColor.Red :
+                                          ConsoleColor.DarkGray;
+                Console.WriteLine("  " + line);
+                Console.ResetColor();
+            }
+            catch { }
+        }
+
+        private void HideConsole()
+        {
+            try
+            {
+                IntPtr hwnd = GetConsoleWindow();
+                if (hwnd != IntPtr.Zero)
+                    ShowWindow(hwnd, SW_HIDE);
+                FreeConsole();
+            }
+            catch { }
+        }
+
+        // ─── Exit button ───
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -433,25 +545,16 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         [DllImport("kernel32.dll")]
         static extern bool CloseHandle(IntPtr hObject);
 
-        // Extracts DLL from embedded resources
         private void ExtractEmbeddedResource(string resourceName, string outputPath)
         {
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
             {
-                if (stream == null)
-                {
-                    MessageBox.Show("Failed to find embedded resource: " + resourceName);
-                    return;
-                }
-
+                if (stream == null) { MessageBox.Show("Failed to find embedded resource: " + resourceName); return; }
                 using (FileStream fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
-                {
                     stream.CopyTo(fileStream);
-                }
             }
         }
 
-        // DLL injection to emulator
         private void button3_Click(object sender, EventArgs e)
         {
             string processName = "HD-Player";
@@ -481,16 +584,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 
             IntPtr hProcess = OpenProcess(
                 PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
-                false,
-                targetProcess.Id
-            );
+                false, targetProcess.Id);
 
             IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
             IntPtr allocMemAddress = VirtualAllocEx(hProcess, IntPtr.Zero, (IntPtr)tempDllPath.Length, MEM_COMMIT, PAGE_READWRITE);
 
             IntPtr bytesWritten;
             WriteProcessMemory(hProcess, allocMemAddress, Encoding.ASCII.GetBytes(tempDllPath), (uint)tempDllPath.Length, out bytesWritten);
-
             CreateRemoteThread(hProcess, IntPtr.Zero, IntPtr.Zero, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);
 
             sta.Text = "STATUS: CHAMES MENU INJECTED";
