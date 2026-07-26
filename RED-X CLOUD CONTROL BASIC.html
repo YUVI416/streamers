@@ -1,645 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LUCAS CHEATS - Cloud Control</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap"
-    rel="stylesheet">
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body,
-    html {
-      height: 100%;
-      font-family: 'Inter', sans-serif;
-      background: #000000;
-      color: #ffffff;
-      overflow: hidden;
-    }
-
-    /* ─── GRID BACKGROUND ─── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      z-index: 0;
-    }
-
-    /* Radial glow center */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(ellipse, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* ─── PAGES ─── */
-    .page {
-      display: none;
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      height: 100vh;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .page.active {
-      display: flex;
-    }
-
-    /* ─── CARD ─── */
-    .card {
-      background: rgba(10, 10, 10, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 2.8rem 2.5rem;
-      width: 420px;
-      text-align: center;
-      animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        0 25px 80px rgba(0, 0, 0, 0.8),
-        0 0 60px rgba(255, 255, 255, 0.03);
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(24px) scale(0.98);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    /* ─── LOGO ─── */
-    .logo-wrap {
-      margin-bottom: 2rem;
-    }
-
-    .logo {
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: 4px;
-      color: #ffffff;
-      text-transform: uppercase;
-    }
-
-    .logo-sub {
-      font-size: 0.6rem;
-      color: rgba(255, 255, 255, 0.3);
-      letter-spacing: 5px;
-      margin-top: 4px;
-      text-transform: uppercase;
-    }
-
-    .logo-line {
-      width: 40px;
-      height: 2px;
-      background: #fff;
-      margin: 12px auto 0;
-      border-radius: 2px;
-    }
-
-    /* ─── INPUTS ─── */
-    .input-group {
-      margin-bottom: 1rem;
-      text-align: left;
-    }
-
-    .input-group label {
-      display: block;
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.4);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .input-group input {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 13px 16px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      color: #fff;
-      outline: none;
-      transition: all 0.2s;
-    }
-
-    .input-group input:focus {
-      border-color: rgba(255, 255, 255, 0.4);
-      background: rgba(255, 255, 255, 0.07);
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
-    }
-
-    .input-group input::placeholder {
-      color: rgba(255, 255, 255, 0.2);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* ─── MAIN BUTTON ─── */
-    .btn {
-      cursor: pointer;
-      width: 100%;
-      background: #ffffff;
-      color: #000000;
-      border: none;
-      padding: 14px 28px;
-      margin-top: 0.8rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
-      border-radius: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.88);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* ─── OUTLINE BUTTON ─── */
-    .btn-outline {
-      background: transparent;
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
-    }
-
-    /* ─── DANGER BUTTON ─── */
-    .btn-danger {
-      background: transparent;
-      color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.4);
-    }
-
-    .btn-danger:hover {
-      background: rgba(255, 68, 68, 0.1);
-      border-color: #ff4444;
-      box-shadow: 0 4px 20px rgba(255, 68, 68, 0.15);
-    }
-
-    /* ─── CONTROL GRID ─── */
-    .btn-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 1.5rem;
-    }
-
-    .btn-grid .btn,
-    .btn-grid .btn-outline {
-      width: auto;
-      font-size: 0.7rem;
-      padding: 12px 10px;
-      margin-top: 0;
-      letter-spacing: 1.5px;
-    }
-
-    .btn-full {
-      grid-column: 1 / -1;
-    }
-
-    /* ─── STATUS ─── */
-    .status-msg {
-      margin-top: 1rem;
-      font-size: 0.72rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: rgba(255, 255, 255, 0.4);
-      min-height: 1.2rem;
-      letter-spacing: 0.5px;
-      transition: all 0.3s;
-    }
-
-    /* ─── ERROR MSG ─── */
-    .error-msg {
-      font-size: 0.72rem;
-      color: #ff5555;
-      margin-top: 0.6rem;
-      display: none;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .error-msg.show {
-      display: block;
-    }
-
-    /* ─── SESSION BOX ─── */
-    .session-box {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 1.5rem;
-    }
-
-    .session-box .label {
-      font-size: 0.55rem;
-      letter-spacing: 4px;
-      color: rgba(255, 255, 255, 0.3);
-      text-transform: uppercase;
-    }
-
-    .session-box .code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #fff;
-      letter-spacing: 4px;
-      margin-top: 4px;
-    }
-
-    /* ─── CONNECTION STATUS ─── */
-    .conn-status {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 0.62rem;
-      letter-spacing: 2px;
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #444;
-      transition: all 0.3s;
-    }
-
-    .dot.online {
-      background: #fff;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-      animation: blink 2s infinite;
-    }
-
-    .dot.offline {
-      background: #ff4444;
-      box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
-    }
-
-    @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-    }
-
-    /* ─── SPINNER ─── */
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(0, 0, 0, 0.2);
-      border-top: 2px solid #000;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    .btn-outline .spinner,
-    .btn-danger .spinner {
-      border-color: rgba(255, 255, 255, 0.2);
-      border-top-color: #fff;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ─── DIVIDER ─── */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 1.2rem 0;
-      color: rgba(255, 255, 255, 0.15);
-      font-size: 0.55rem;
-      letter-spacing: 2px;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    /* ─── CONTROL STATUS ─── */
-    #control-status {
-      margin-top: 1rem;
-      font-size: 0.72rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: rgba(255, 255, 255, 0.5);
-      min-height: 1.2rem;
-      transition: all 0.3s;
-    }
-
-    /* ─── HINT TEXT ─── */
-    .hint {
-      font-size: 0.65rem;
-      color: rgba(255, 255, 255, 0.25);
-      line-height: 1.8;
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.3px;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>LUCAS CHEATS — Cloud Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:#000;color:#fff;font-family:'Rajdhani',sans-serif;overflow:hidden;}
+canvas#bg{position:fixed;inset:0;z-index:0;}
+.fx{position:fixed;inset:0;z-index:1;pointer-events:none;}
+.fx-grid{background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:52px 52px;position:absolute;inset:0;}
+.fx-vig{background:radial-gradient(ellipse 110% 110% at 50% 50%,transparent 35%,rgba(0,0,0,.9) 100%);position:absolute;inset:0;}
+.fx-scan{background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,.09) 3px,rgba(0,0,0,.09) 4px);position:absolute;inset:0;}
+.fx-beam{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);animation:beam 5.5s linear infinite;}
+@keyframes beam{from{top:-2px;}to{top:100vh;}}
+.page{display:none;position:fixed;inset:0;z-index:10;align-items:center;justify-content:center;}
+.page.active{display:flex;}
+.card{
+  position:relative;background:rgba(5,5,5,.97);border:1px solid rgba(255,255,255,.1);border-radius:4px;
+  padding:2.4rem 2.6rem 2rem;width:430px;text-align:center;
+  animation:cin .5s cubic-bezier(.16,1,.3,1) forwards;
+  box-shadow:0 0 0 1px rgba(255,255,255,.04),0 50px 120px rgba(0,0,0,1),inset 0 1px 0 rgba(255,255,255,.07);
+  transition:transform .08s ease,box-shadow .3s;
+}
+.card-w{width:470px;}
+.card::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.65) 50%,transparent);}
+.card::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);}
+@keyframes cin{from{opacity:0;transform:translateY(-35px) rotateX(14deg) scale(.95);}to{opacity:1;transform:translateY(0) rotateX(0) scale(1);}}
+.cc{position:absolute;width:14px;height:14px;border-color:rgba(255,255,255,.22);border-style:solid;}
+.cc.tl{top:8px;left:8px;border-width:1px 0 0 1px;}
+.cc.tr{top:8px;right:8px;border-width:1px 1px 0 0;}
+.cc.bl{bottom:8px;left:8px;border-width:0 0 1px 1px;}
+.cc.br{bottom:8px;right:8px;border-width:0 1px 1px 0;}
+.ctag{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:.45rem;letter-spacing:2px;color:rgba(255,255,255,.12);}
+.lw{margin-bottom:1.5rem;display:flex;flex-direction:column;align-items:center;}
+.limg{width:100px;height:100px;object-fit:cover;border-radius:50%;border:1px solid rgba(255,255,255,.18);margin-bottom:1rem;
+  filter:drop-shadow(0 0 22px rgba(255,255,255,.18));transition:filter .4s,transform .4s;}
+.limg:hover{filter:drop-shadow(0 0 44px rgba(255,255,255,.55));transform:scale(1.06) rotate(-3deg);}
+.lt{font-family:'Orbitron',sans-serif;font-size:1.25rem;font-weight:900;letter-spacing:7px;color:#fff;text-transform:uppercase;
+  text-shadow:0 0 28px rgba(255,255,255,.22);animation:glitch 9s infinite;}
+@keyframes glitch{
+  0%,88%,100%{text-shadow:0 0 25px rgba(255,255,255,.22);transform:translate(0);}
+  90%{text-shadow:-2px 0 rgba(255,255,255,.7),2px 0 rgba(255,255,255,.3);transform:translate(-1px,0);}
+  92%{text-shadow:2px 0 rgba(255,255,255,.7),-2px 0 rgba(255,255,255,.3);transform:translate(1px,0);}
+  94%{text-shadow:0 0 25px rgba(255,255,255,.22);transform:translate(0);}
+  96%{text-shadow:-1px 0 rgba(255,255,255,.5);transform:translate(-1px,0);}
+  98%{text-shadow:0 0 25px rgba(255,255,255,.22);transform:translate(0);}
+}
+.ls{font-size:.55rem;color:rgba(255,255,255,.22);letter-spacing:5px;margin-top:4px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.lb{width:55px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);margin:10px auto 0;}
+.hint{font-size:.6rem;color:rgba(255,255,255,.17);line-height:2.2;margin-bottom:1.3rem;font-family:'JetBrains Mono',monospace;}
+.ig{margin-bottom:.85rem;text-align:left;}
+.ig label{display:block;font-size:.52rem;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:3.5px;text-transform:uppercase;margin-bottom:7px;font-family:'JetBrains Mono',monospace;}
+.ig input{width:100%;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);border-radius:2px;padding:13px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:.9rem;color:#fff;outline:none;transition:border-color .25s,background .25s,box-shadow .25s;}
+.ig input:focus{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.055);box-shadow:0 0 0 3px rgba(255,255,255,.04),0 0 28px rgba(255,255,255,.05);}
+.ig input::placeholder{color:rgba(255,255,255,.1);}
+.btn{cursor:pointer;width:100%;background:#fff;color:#000;border:none;padding:14px 28px;margin-top:.85rem;
+  font-family:'Orbitron',sans-serif;font-size:.62rem;font-weight:700;border-radius:2px;letter-spacing:3px;text-transform:uppercase;
+  transition:all .22s;position:relative;overflow:hidden;
+  box-shadow:0 4px 28px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.85);-webkit-tap-highlight-color:transparent;}
+.btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,0,0,.07),transparent);transition:left .5s;}
+.btn:hover::after,.btn:active::after{left:100%;}
+.btn:hover{background:rgba(238,238,238,1);transform:translateY(-2px);box-shadow:0 14px 45px rgba(255,255,255,.22),inset 0 1px 0 rgba(255,255,255,.9);}
+.btn:active{transform:translateY(0) scale(.985);box-shadow:none;}
+.btn:disabled{opacity:.2;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-o{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.15);box-shadow:none;}
+.btn-o:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.4);transform:translateY(-2px);}
+.btn-d{background:transparent;color:#ff2929;border:1px solid rgba(255,41,41,.3);box-shadow:none;}
+.btn-d:hover{background:rgba(255,41,41,.08);border-color:#ff2929;box-shadow:0 0 28px rgba(255,41,41,.1);transform:translateY(-2px);}
+.bg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:1.3rem;}
+.bg .btn,.bg .btn-o{width:auto;font-size:.52rem;padding:12px 8px;margin-top:0;letter-spacing:1.5px;}
+.bfl{grid-column:1/-1;}
+.smsg{margin-top:.85rem;font-size:.62rem;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.28);min-height:1.1rem;transition:all .3s;}
+.err{font-size:.62rem;color:#ff2929;margin-top:.5rem;display:none;font-family:'JetBrains Mono',monospace;}
+.err.show{display:block;}
+.sbox{position:relative;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:2px;padding:14px;margin-bottom:1.3rem;}
+.sbox::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);}
+.slb{font-size:.5rem;letter-spacing:4px;color:rgba(255,255,255,.2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.scd{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:6px;margin-top:5px;text-shadow:0 0 22px rgba(255,255,255,.35);}
+.cst{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;font-size:.55rem;letter-spacing:2.5px;color:rgba(255,255,255,.28);font-family:'JetBrains Mono',monospace;}
+.dot{width:6px;height:6px;border-radius:50%;background:#222;transition:all .3s;}
+.dot.on{background:#fff;box-shadow:0 0 12px rgba(255,255,255,.9);animation:dp 2s infinite;}
+.dot.off{background:#ff2929;box-shadow:0 0 10px rgba(255,41,41,.6);}
+@keyframes dp{0%,100%{opacity:1;box-shadow:0 0 12px rgba(255,255,255,.9);}50%{opacity:.3;box-shadow:0 0 4px rgba(255,255,255,.2);}}
+.sp{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.1);border-top:2px solid #000;border-radius:50%;animation:spn .6s linear infinite;vertical-align:middle;margin-right:7px;}
+.btn-o .sp,.btn-d .sp{border-color:rgba(255,255,255,.1);border-top-color:#fff;}
+@keyframes spn{to{transform:rotate(360deg);}}
+#cst2{margin-top:.85rem;font-size:.62rem;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.32);min-height:1.1rem;transition:all .3s;}
+@media(max-width:480px){
+  .card,.card-w{width:95vw;padding:1.8rem 1.3rem 1.5rem;}
+  .lt{font-size:1rem;letter-spacing:4px;}
+  .limg{width:80px;height:80px;}
+}
+</style>
 </head>
-
 <body>
+<canvas id="bg"></canvas>
+<div class="fx"><div class="fx-grid"></div><div class="fx-vig"></div><div class="fx-scan"></div><div class="fx-beam"></div></div>
 
-  <!-- ════════════ PAGE 1: LICENSE ════════════ -->
-  <div class="page active" id="page-login">
-    <div class="card">
-      <div class="logo-wrap">
-        <div class="logo">LUCAS CHEATS</div>
-        <div class="logo-sub">Cloud Control System</div>
-        <div class="logo-line"></div>
-      </div>
-
-      <div class="input-group">
-        <label>License Key</label>
-        <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX" autocomplete="off" spellcheck="false" />
-      </div>
-
-      <p class="error-msg" id="auth-error">Invalid license key</p>
-      <button class="btn" id="auth-btn" onclick="doAuth()">Authenticate</button>
-      <div class="status-msg" id="status-text"></div>
+<div class="page active" id="pg-code">
+  <div class="card" id="c1">
+    <div class="cc tl"></div><div class="cc tr"></div><div class="cc bl"></div><div class="cc br"></div>
+    <span class="ctag">v2.0</span>
+    <div class="lw">
+      <img src="logo.jpg" alt="LUCAS CHEATS" class="limg"/>
+      <div class="lt">LUCAS CHEATS</div>
+      <div class="ls">Cloud Control System</div>
+      <div class="lb"></div>
     </div>
-  </div>
-
-  <!-- ════════════ PAGE 2: SESSION CODE ════════════ -->
-  <div class="page" id="page-code">
-    <div class="card">
-      <div class="logo-wrap">
-        <div class="logo">LUCAS CHEATS</div>
-        <div class="logo-sub">Enter Session Code</div>
-        <div class="logo-line"></div>
-      </div>
-
-      <p class="hint">
-        Run the EXE on your PC.<br>
-        A session code will appear in the terminal.<br>
-        Enter it below to connect remotely.
-      </p>
-
-      <div class="input-group">
-        <label>Session Code</label>
-        <input type="text" id="session-code-input" placeholder="LC-XXXXXX" autocomplete="off" spellcheck="false"
-          style="text-transform:uppercase; letter-spacing:4px; font-size:1rem; text-align:center;" />
-      </div>
-
-      <p class="error-msg" id="code-error">Invalid code or EXE not running</p>
-      <button class="btn" id="connect-btn" onclick="connectSession()">Connect to EXE</button>
-      <div class="status-msg" id="status-text2"></div>
+    <p class="hint">Run the EXE &bull; Login in terminal<br>Session code appears &bull; Enter below</p>
+    <div class="ig">
+      <label>Session Code</label>
+      <input type="text" id="sci" placeholder="LC-XXXXXX" autocomplete="off" spellcheck="false" inputmode="text"
+        style="text-transform:uppercase;letter-spacing:6px;font-size:1rem;text-align:center;"/>
     </div>
+    <p class="err" id="ce">Invalid code or EXE not running</p>
+    <button class="btn" id="cb" onclick="go()">Connect to EXE</button>
+    <div class="smsg" id="sm"></div>
   </div>
+</div>
 
-  <!-- ════════════ PAGE 3: CONTROL PANEL ════════════ -->
-  <div class="page" id="page-control">
-    <div class="card" style="width:460px;">
-      <div class="logo-wrap">
-        <div class="logo">LUCAS CHEATS</div>
-        <div class="logo-sub">Remote Control</div>
-        <div class="logo-line"></div>
-      </div>
-
-      <div class="session-box">
-        <div class="label">Active Session</div>
-        <div class="code" id="active-code">—</div>
-        <div class="conn-status">
-          <span class="dot online" id="conn-dot"></span>
-          <span id="conn-label">CONNECTED</span>
-        </div>
-      </div>
-
-      <div class="btn-grid">
-        <button class="btn" onclick="sendCmd('load')">Load Aimbot</button>
-        <button class="btn-outline btn" onclick="sendCmd('toggle')">Toggle</button>
-        <button class="btn-outline btn" onclick="sendCmd('bind')">Bind Key</button>
-        <button class="btn-outline btn" onclick="sendCmd('location')">Chams Menu</button>
-        <button class="btn btn-danger btn-full" onclick="sendCmd('exit')">Exit EXE</button>
-      </div>
-
-      <div id="control-status">—</div>
+<div class="page" id="pg-ctrl">
+  <div class="card card-w" id="c2">
+    <div class="cc tl"></div><div class="cc tr"></div><div class="cc bl"></div><div class="cc br"></div>
+    <span class="ctag">LIVE</span>
+    <div class="lw">
+      <img src="logo.jpg" alt="LUCAS CHEATS" class="limg" style="width:76px;height:76px;"/>
+      <div class="lt">LUCAS CHEATS</div>
+      <div class="ls">Remote Control Panel</div>
+      <div class="lb"></div>
     </div>
+    <div class="sbox">
+      <div class="slb">Active Session</div>
+      <div class="scd" id="acd">—</div>
+      <div class="cst"><span class="dot on" id="cd"></span><span id="cl">CONNECTED</span></div>
+    </div>
+    <div class="bg">
+      <button class="btn" onclick="cmd('load')">Load Aimbot</button>
+      <button class="btn btn-o" onclick="cmd('toggle')">Toggle</button>
+      <button class="btn btn-o" onclick="cmd('bind')">Bind Key</button>
+      <button class="btn btn-o" onclick="cmd('location')">Chams Menu</button>
+      <button class="btn btn-d bfl" onclick="cmd('exit')">Exit EXE</button>
+    </div>
+    <div id="cst2">—</div>
   </div>
+</div>
 
-  <script>
-    // ─── CONFIG ───
-    const RELAY_URL = 'wss://lucas-cheats-relay.onrender.com';
-    const KEYAUTH_CONFIG = {
-      ownerid: 'YOUR_OWNER_ID',
-      appid: 'YOUR_APP_NAME',
-      version: '1.0'
-    };
-
-    let ws = null;
-    let sessionCode = null;
-
-    // ─── PAGE NAV ───
-    function showPage(id) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    // ─── AUTH ───
-    async function doAuth() {
-      const key = document.getElementById('license-key').value.trim();
-      if (!key) return;
-
-      const authBtn = document.getElementById('auth-btn');
-      const statusEl = document.getElementById('status-text');
-      const errorEl = document.getElementById('auth-error');
-
-      authBtn.disabled = true;
-      authBtn.innerHTML = '<span class="spinner"></span>Authenticating...';
-      errorEl.classList.remove('show');
-      statusEl.textContent = '';
-
-      // ── DEMO MODE (check FIRST before API) ──
-      if (key.toUpperCase() === 'LC-DEMO') {
-        statusEl.style.color = '#aaffaa';
-        statusEl.textContent = '✓ Demo mode activated';
-        authBtn.disabled = false;
-        authBtn.innerHTML = 'Authenticate';
-        setTimeout(() => showPage('page-code'), 700);
-        return;
+<script>
+(function(){
+  var cv=document.getElementById('bg'),cx=cv.getContext('2d'),W,H,P=[];
+  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  function mk(){P=[];for(var i=0;i<110;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.1+.2,a:Math.random()*.45+.08});}
+  function dr(){
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<P.length;i++){
+      var p=P[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      for(var j=i+1;j<P.length;j++){
+        var q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<105){cx.beginPath();cx.strokeStyle='rgba(255,255,255,'+(.055*(1-d/105))+')';cx.lineWidth=.4;cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke();}
       }
-
-      try {
-        const res = await fetch('https://keyauth.win/api/1.2/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            type: 'license',
-            key: key,
-            ownerid: KEYAUTH_CONFIG.ownerid,
-            name: KEYAUTH_CONFIG.appid,
-            ver: KEYAUTH_CONFIG.version
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          statusEl.style.color = '#aaffaa';
-          statusEl.textContent = '✓ Authenticated';
-          setTimeout(() => showPage('page-code'), 700);
-        } else {
-          errorEl.textContent = '✗ ' + (data.message || 'Invalid license key');
-          errorEl.classList.add('show');
-        }
-      } catch (err) {
-        errorEl.textContent = '✗ Auth server unreachable';
-        errorEl.classList.add('show');
-      }
-
-      authBtn.disabled = false;
-      authBtn.innerHTML = 'Authenticate';
+      cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle='rgba(255,255,255,'+p.a+')';cx.fill();
     }
+    requestAnimationFrame(dr);
+  }
+  window.addEventListener('resize',function(){rs();mk();});
+  rs();mk();dr();
 
-    document.getElementById('license-key').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doAuth();
-    });
-
-    // ─── CONNECT SESSION ───
-    function connectSession() {
-      const code = document.getElementById('session-code-input').value.trim().toUpperCase();
-      if (!code) return;
-
-      const btn = document.getElementById('connect-btn');
-      const statusEl = document.getElementById('status-text2');
-      const errorEl = document.getElementById('code-error');
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Connecting...';
-      errorEl.classList.remove('show');
-      statusEl.textContent = '';
-
-      ws = new WebSocket(RELAY_URL);
-      let connected = false;
-
-      const timeout = setTimeout(() => {
-        if (!connected) {
-          ws.close();
-          errorEl.textContent = '✗ Relay server unreachable';
-          errorEl.classList.add('show');
-          btn.disabled = false;
-          btn.innerHTML = 'Connect to EXE';
-        }
-      }, 8000);
-
-      ws.onopen = () => {
-        connected = true;
-        clearTimeout(timeout);
-        ws.send(JSON.stringify({ type: 'join_web', code }));
-        statusEl.textContent = 'Waiting for EXE response...';
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.type === 'connected') {
-            sessionCode = code;
-            document.getElementById('active-code').textContent = code;
-            showPage('page-control');
-            btn.disabled = false;
-            btn.innerHTML = 'Connect to EXE';
-          } else if (msg.type === 'error') {
-            errorEl.textContent = '✗ ' + msg.message;
-            errorEl.classList.add('show');
-            btn.disabled = false;
-            btn.innerHTML = 'Connect to EXE';
-            ws.close();
-          } else if (msg.type === 'response') {
-            const el = document.getElementById('control-status');
-            el.style.color = '#ffffff';
-            el.textContent = '→ ' + msg.text;
-            setTimeout(() => { el.style.color = 'rgba(255,255,255,0.4)'; }, 3000);
-          }
-        } catch (e) { }
-      };
-
-      ws.onclose = () => {
-        const dot = document.getElementById('conn-dot');
-        const label = document.getElementById('conn-label');
-        if (dot && dot.classList.contains('online')) {
-          dot.className = 'dot offline';
-          label.textContent = 'DISCONNECTED';
-          document.getElementById('control-status').textContent = '⚠ Connection lost';
-        }
-      };
+  function tilt(el){
+    function mv(e){
+      var r=el.getBoundingClientRect(),cx2,cy2;
+      if(e.touches){cx2=e.touches[0].clientX;cy2=e.touches[0].clientY;}
+      else{cx2=e.clientX;cy2=e.clientY;}
+      var rx=(cy2-r.top-r.height/2)/r.height*13,ry=(cx2-r.left-r.width/2)/r.width*-13;
+      el.style.transform='perspective(1100px) rotateX('+rx+'deg) rotateY('+ry+'deg) scale(1.022)';
     }
+    function rs2(){el.style.transform='perspective(1100px) rotateX(0) rotateY(0) scale(1)';}
+    el.addEventListener('mousemove',mv);
+    el.addEventListener('touchmove',mv,{passive:true});
+    el.addEventListener('mouseleave',rs2);
+    el.addEventListener('touchend',rs2);
+  }
+  document.querySelectorAll('.card').forEach(tilt);
+})();
 
-    document.getElementById('session-code-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') connectSession();
-    });
+var RL='wss://lucas-cheats-relay.onrender.com',ws=null,sc=null;
 
-    // ─── SEND COMMAND ───
-    function sendCmd(action) {
-      if (!ws || ws.readyState !== WebSocket.OPEN) {
-        document.getElementById('control-status').textContent = '⚠ Not connected';
-        return;
-      }
-      ws.send(JSON.stringify({ type: 'command', action }));
-      document.getElementById('control-status').textContent = '→ Sending ' + action + '...';
-    }
-  </script>
+function show(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById(id).classList.add('active');}
+
+function go(){
+  var code=document.getElementById('sci').value.trim().toUpperCase();
+  if(!code)return;
+  var btn=document.getElementById('cb'),sm=document.getElementById('sm'),ce=document.getElementById('ce');
+  btn.disabled=true;btn.innerHTML='<span class="sp"></span>Connecting...';
+  ce.classList.remove('show');sm.textContent='';
+  ws=new WebSocket(RL);var ok=false;
+  var t=setTimeout(function(){if(!ok){ws.close();ce.textContent='Connection failed';ce.classList.add('show');btn.disabled=false;btn.textContent='Connect to EXE';}},8000);
+  ws.onopen=function(){ok=true;clearTimeout(t);ws.send(JSON.stringify({type:'join_web',code:code}));sm.textContent='Waiting for EXE...';};
+  ws.onmessage=function(e){
+    try{
+      var m=JSON.parse(e.data);
+      if(m.type==='connected'){sc=code;document.getElementById('acd').textContent=code;show('pg-ctrl');btn.disabled=false;btn.textContent='Connect to EXE';}
+      else if(m.type==='error'){ce.textContent=''+m.message;ce.classList.add('show');btn.disabled=false;btn.textContent='Connect to EXE';ws.close();}
+      else if(m.type==='response'){var el=document.getElementById('cst2');el.style.color='#fff';el.textContent=''+m.text;setTimeout(function(){el.style.color='rgba(255,255,255,.32)';},3000);}
+    }catch(x){}
+  };
+  ws.onclose=function(){
+    var d=document.getElementById('cd'),l=document.getElementById('cl');
+    if(d&&d.classList.contains('on')){d.className='dot off';l.textContent='DISCONNECTED';document.getElementById('cst2').textContent='Connection lost';}
+  };
+}
+
+document.getElementById('sci').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
+
+function cmd(a){
+  if(!ws||ws.readyState!==WebSocket.OPEN){document.getElementById('cst2').textContent='Not connected';return;}
+  ws.send(JSON.stringify({type:'command',action:a}));
+  document.getElementById('cst2').textContent='Sending '+a+'...';
+}
+</script>
 </body>
-
 </html>
