@@ -78,6 +78,20 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
 .asel .abtn.active{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.55);box-shadow:0 0 18px rgba(255,255,255,.08);}
 .asel .abtn:hover:not(.active){background:rgba(255,255,255,.035);color:rgba(255,255,255,.65);border-color:rgba(255,255,255,.25);}
 .asel-label{font-size:.46rem;letter-spacing:3px;color:rgba(255,255,255,.2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:6px;margin-top:1.1rem;text-align:left;}
+/* ── Mode Tabs ── */
+.mtabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:1.2rem;}
+.mtab{cursor:pointer;background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:9px 4px;font-family:'Orbitron',sans-serif;font-size:.42rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .22s;position:relative;overflow:hidden;}
+.mtab::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:2px;background:#fff;transition:left .25s,right .25s;}
+.mtab.active{background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.45);}
+.mtab.active::after{left:0;right:0;}
+.mtab:hover:not(.active){background:rgba(255,255,255,.03);color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.2);}
+.mpanel{display:none;animation:mfade .3s ease;}
+.mpanel.active{display:block;}
+@keyframes mfade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.coming{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 0 1rem;gap:.6rem;}
+.coming-icon{font-size:2rem;opacity:.15;}
+.coming-txt{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:3px;color:rgba(255,255,255,.18);text-transform:uppercase;}
+.coming-sub{font-family:'JetBrains Mono',monospace;font-size:.45rem;letter-spacing:2px;color:rgba(255,255,255,.1);text-transform:uppercase;}
 .smsg{margin-top:.85rem;font-size:.62rem;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.28);min-height:1.1rem;transition:all .3s;}
 .err{font-size:.62rem;color:#ff2929;margin-top:.5rem;display:none;font-family:'JetBrains Mono',monospace;}
 .err.show{display:block;}
@@ -142,18 +156,55 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
       <div class="scd" id="acd">—</div>
       <div class="cst"><span class="dot on" id="cd"></span><span id="cl">CONNECTED</span></div>
     </div>
-    <div class="asel-label">Select Aimbot</div>
-    <div class="asel">
-      <button class="abtn active" id="abtn-drag" onclick="selectAimbot('drag')">⊕ Aimbot Drag</button>
-      <button class="abtn" id="abtn-head" onclick="selectAimbot('head')">◎ Aimbot Head</button>
+    <!-- ══ Mode Tabs ══ -->
+    <div class="mtabs">
+      <button class="mtab active" id="mt-aimbot" onclick="switchMode('aimbot')">⊕ Aimbot</button>
+      <button class="mtab" id="mt-location" onclick="switchMode('location')">◉ Location</button>
+      <button class="mtab" id="mt-sniper" onclick="switchMode('sniper')">◎ Sniper</button>
+      <button class="mtab" id="mt-extra" onclick="switchMode('extra')">✦ Extra</button>
     </div>
-    <div class="bg">
-      <button class="btn" onclick="cmdAimbot('load')">Load Aimbot</button>
-      <button class="btn btn-o" onclick="cmdAimbot('toggle')">Toggle</button>
-      <button class="btn btn-o" onclick="cmdAimbot('bind')">Bind Key</button>
-      <button class="btn btn-o" onclick="cmd('location')">Chams Menu</button>
-      <button class="btn btn-d bfl" onclick="cmd('exit')">Exit EXE</button>
+
+    <!-- ══ Panel: Aimbot ══ -->
+    <div class="mpanel active" id="mp-aimbot">
+      <div class="asel-label">Select Aimbot</div>
+      <div class="asel">
+        <button class="abtn active" id="abtn-drag" onclick="selectAimbot('drag')">⊕ Aimbot Drag</button>
+        <button class="abtn" id="abtn-head" onclick="selectAimbot('head')">◎ Aimbot Head</button>
+      </div>
+      <div class="bg">
+        <button class="btn" onclick="cmdAimbot('load')">Load Aimbot</button>
+        <button class="btn btn-o" onclick="cmdAimbot('toggle')">Toggle</button>
+        <button class="btn btn-o bfl" onclick="cmdAimbot('bind')">Bind Key</button>
+      </div>
     </div>
+
+    <!-- ══ Panel: Location ══ -->
+    <div class="mpanel" id="mp-location">
+      <div class="bg" style="margin-top:.8rem;">
+        <button class="btn bfl" onclick="cmd('location')">Chams Menu</button>
+      </div>
+    </div>
+
+    <!-- ══ Panel: Sniper ══ -->
+    <div class="mpanel" id="mp-sniper">
+      <div class="coming">
+        <div class="coming-icon">◎</div>
+        <div class="coming-txt">Sniper Mode</div>
+        <div class="coming-sub">Coming Soon</div>
+      </div>
+    </div>
+
+    <!-- ══ Panel: Extra ══ -->
+    <div class="mpanel" id="mp-extra">
+      <div class="coming">
+        <div class="coming-icon">✦</div>
+        <div class="coming-txt">Extra Mode</div>
+        <div class="coming-sub">Coming Soon</div>
+      </div>
+    </div>
+
+    <!-- ══ Always visible ══ -->
+    <button class="btn btn-d" style="width:100%;margin-top:1rem;" onclick="cmd('exit')">Exit EXE</button>
     <div id="cst2">—</div>
   </div>
 </div>
@@ -226,6 +277,18 @@ function go(){
 document.getElementById('sci').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
 
 var activeAimbot='drag';
+var activeMode='aimbot';
+
+function switchMode(mode){
+  activeMode=mode;
+  var modes=['aimbot','location','sniper','extra'];
+  modes.forEach(function(m){
+    document.getElementById('mt-'+m).classList.toggle('active',m===mode);
+    document.getElementById('mp-'+m).classList.toggle('active',m===mode);
+  });
+  document.getElementById('cst2').textContent='Mode: '+mode.charAt(0).toUpperCase()+mode.slice(1);
+}
+
 
 function selectAimbot(type){
   activeAimbot=type;
