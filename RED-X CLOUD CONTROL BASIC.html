@@ -73,6 +73,11 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
 .bg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:1.3rem;}
 .bg .btn,.bg .btn-o{width:auto;font-size:.52rem;padding:12px 8px;margin-top:0;letter-spacing:1.5px;}
 .bfl{grid-column:1/-1;}
+.asel{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:0;}
+.asel .abtn{cursor:pointer;background:transparent;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.12);border-radius:2px;padding:10px 8px;font-family:'Orbitron',sans-serif;font-size:.5rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .22s;}
+.asel .abtn.active{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.55);box-shadow:0 0 18px rgba(255,255,255,.08);}
+.asel .abtn:hover:not(.active){background:rgba(255,255,255,.035);color:rgba(255,255,255,.65);border-color:rgba(255,255,255,.25);}
+.asel-label{font-size:.46rem;letter-spacing:3px;color:rgba(255,255,255,.2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:6px;margin-top:1.1rem;text-align:left;}
 .smsg{margin-top:.85rem;font-size:.62rem;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.28);min-height:1.1rem;transition:all .3s;}
 .err{font-size:.62rem;color:#ff2929;margin-top:.5rem;display:none;font-family:'JetBrains Mono',monospace;}
 .err.show{display:block;}
@@ -137,10 +142,15 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
       <div class="scd" id="acd">—</div>
       <div class="cst"><span class="dot on" id="cd"></span><span id="cl">CONNECTED</span></div>
     </div>
+    <div class="asel-label">Select Aimbot</div>
+    <div class="asel">
+      <button class="abtn active" id="abtn-drag" onclick="selectAimbot('drag')">⊕ Aimbot Drag</button>
+      <button class="abtn" id="abtn-head" onclick="selectAimbot('head')">◎ Aimbot Head</button>
+    </div>
     <div class="bg">
-      <button class="btn" onclick="cmd('load')">Load Aimbot</button>
-      <button class="btn btn-o" onclick="cmd('toggle')">Toggle</button>
-      <button class="btn btn-o" onclick="cmd('bind')">Bind Key</button>
+      <button class="btn" onclick="cmdAimbot('load')">Load Aimbot</button>
+      <button class="btn btn-o" onclick="cmdAimbot('toggle')">Toggle</button>
+      <button class="btn btn-o" onclick="cmdAimbot('bind')">Bind Key</button>
       <button class="btn btn-o" onclick="cmd('location')">Chams Menu</button>
       <button class="btn btn-d bfl" onclick="cmd('exit')">Exit EXE</button>
     </div>
@@ -214,6 +224,20 @@ function go(){
 }
 
 document.getElementById('sci').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
+
+var activeAimbot='drag';
+
+function selectAimbot(type){
+  activeAimbot=type;
+  document.getElementById('abtn-drag').classList.toggle('active',type==='drag');
+  document.getElementById('abtn-head').classList.toggle('active',type==='head');
+  document.getElementById('cst2').textContent='Selected: Aimbot '+(type==='head'?'Head':'Drag');
+}
+
+function cmdAimbot(base){
+  var action=(activeAimbot==='head'&&base!=='location'&&base!=='exit')?(base+'head'):base;
+  cmd(action);
+}
 
 function cmd(a){
   if(!ws||ws.readyState!==WebSocket.OPEN){document.getElementById('cst2').textContent='Not connected';return;}

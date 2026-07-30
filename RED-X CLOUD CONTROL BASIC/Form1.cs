@@ -83,10 +83,16 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private bool isAnimating = false;
         private readonly tenzo32 TXCmem = new tenzo32();
 
+        // ── Aimbot DRAG ──
         private readonly string[] TaskName = { "HD-Player" };
         private readonly int ReadOffset = 0xE8;
         private readonly int WriteOffset = 0xB4;
         private readonly string AimbotPattern = "FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 00 00 00 00 ?? ?? ?? ?? 00 00 00 00 ?? ?? ?? ?? 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A5 43";
+
+        // ── Aimbot HEAD ──
+        private readonly int HeadReadOffset  = 0xB8;
+        private readonly int HeadWriteOffset = 0xB4;
+        private readonly string AimbotHeadPattern = "FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A5 43";
 
         public Form1()
         {
@@ -127,6 +133,12 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                     ((Control)this.bindBtn).Text = str.Equals("Escape") ? "None" : str;
                     this.waitPressKey = false;
                 }
+                else if (this.waitPressKeyHead)
+                {
+                    ((Control)this.bindBtnHead).ForeColor = Color.Red;
+                    ((Control)this.bindBtnHead).Text = str.Equals("Escape") ? "None" : str;
+                    this.waitPressKeyHead = false;
+                }
                 else
                 {
                     Keys keys = (Keys)keysConverter.ConvertFromString(((Control)this.bindBtn).Text.Replace("...", ""));
@@ -134,17 +146,32 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                     {
                         checkBox1.Checked = !checkBox1.Checked;
                     }
+
+                    Keys keysHead = (Keys)keysConverter.ConvertFromString(((Control)this.bindBtnHead).Text.Replace("...", ""));
+                    if (keysHead != Keys.None && (Keys)Marshal.ReadInt32(lParam) == keysHead)
+                    {
+                        checkBoxHead.Checked = !checkBoxHead.Checked;
+                    }
                 }
             }
             return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
         }
 
+        // Drag aimbot dictionaries
         private readonly Dictionary<long, byte[]> OriginalValue1 = new Dictionary<long, byte[]>();
         private readonly Dictionary<long, byte[]> OriginalValue2 = new Dictionary<long, byte[]>();
         private readonly Dictionary<long, byte[]> ReplacedValue1 = new Dictionary<long, byte[]>();
         private readonly Dictionary<long, byte[]> ReplacedValue2 = new Dictionary<long, byte[]>();
 
+        // Head aimbot dictionaries
+        private readonly Dictionary<long, byte[]> HeadOriginalValue1 = new Dictionary<long, byte[]>();
+        private readonly Dictionary<long, byte[]> HeadOriginalValue2 = new Dictionary<long, byte[]>();
+        private readonly Dictionary<long, byte[]> HeadReplacedValue1 = new Dictionary<long, byte[]>();
+        private readonly Dictionary<long, byte[]> HeadReplacedValue2 = new Dictionary<long, byte[]>();
+
         public bool Aimbot = false;
+        private bool waitPressKeyHead = false;
+        private bool AimbotHeadToggle = false;
 
         private async void button1_Click(object sender, EventArgs e)
         {
@@ -257,6 +284,120 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             bindBtn.ForeColor = Color.Red;
             bindBtn.Text = "...";
             waitPressKey = true;
+        }
+
+        // ══════════════════════════════════════════
+        //  AIMBOT HEAD — Load / ON / OFF
+        // ══════════════════════════════════════════
+        private async void LoadAimbotHead()
+        {
+            try
+            {
+                if (!TXCmem.getTask(TaskName))
+                {
+                    sta.Text = "STATUS: Emulator Not Found!!";
+                    sta.ForeColor = Color.Red;
+                    return;
+                }
+
+                Process targetProcess = Process.GetProcessesByName("HD-Player").FirstOrDefault();
+                if (targetProcess == null)
+                {
+                    sta.Text = "STATUS: Emulator Not Found!!";
+                    sta.ForeColor = Color.Red;
+                    return;
+                }
+
+                TXCmem.OpenProcess(targetProcess.Id);
+                sta.Text = "STATUS: Activating Head...";
+                sta.ForeColor = Color.Green;
+                var stopwatch = Stopwatch.StartNew();
+
+                HeadOriginalValue1.Clear(); HeadOriginalValue2.Clear();
+                HeadReplacedValue1.Clear(); HeadReplacedValue2.Clear();
+
+                IEnumerable<long> addresses = await TXCmem.Trace(AimbotHeadPattern);
+                if (addresses == null || !addresses.Any())
+                {
+                    sta.Text = "STATUS: Head Pattern Not Found!";
+                    sta.ForeColor = Color.Red;
+                    return;
+                }
+
+                foreach (long addr in addresses)
+                {
+                    long readAddr  = addr + HeadReadOffset;
+                    long writeAddr = addr + HeadWriteOffset;
+
+                    byte[] readBytes  = TXCmem.TraceHead(readAddr.ToString("X"),  4);
+                    byte[] writeBytes = TXCmem.TraceHead(writeAddr.ToString("X"), 4);
+
+                    if (readBytes == null || writeBytes == null)
+                    {
+                        sta.Text = "STATUS: Failed to read head memory.";
+                        sta.ForeColor = Color.Red;
+                        continue;
+                    }
+
+                    int readValue  = BitConverter.ToInt32(readBytes,  0);
+                    int writeValue = BitConverter.ToInt32(writeBytes, 0);
+
+                    HeadOriginalValue1[writeAddr] = writeBytes;
+                    HeadOriginalValue2[readAddr]  = readBytes;
+
+                    TXCmem.SetHeadBytes(writeAddr.ToString("X"), "int", readValue.ToString());
+                    TXCmem.SetHeadBytes(readAddr.ToString("X"),  "int", writeValue.ToString());
+
+                    HeadReplacedValue1[writeAddr] = BitConverter.GetBytes(readValue);
+                    HeadReplacedValue2[readAddr]  = BitConverter.GetBytes(writeValue);
+                }
+
+                sta.Text = $"STATUS: Head loaded | {stopwatch.Elapsed.TotalSeconds:F2}s";
+                sta.ForeColor = Color.Green;
+            }
+            catch (Exception)
+            {
+                sta.Text = "STATUS: HEAD ERROR";
+                sta.ForeColor = Color.Red;
+            }
+        }
+
+        public void AimbotHeadOFF()
+        {
+            RestoreValuesHead(HeadOriginalValue1);
+            RestoreValuesHead(HeadOriginalValue2);
+            sta.Text = "STATUS: Head Aimbot disabled";
+            sta.ForeColor = Color.Red;
+        }
+
+        public void AimbotHeadON()
+        {
+            RestoreValuesHead(HeadReplacedValue1);
+            RestoreValuesHead(HeadReplacedValue2);
+            sta.Text = "STATUS: Head Aimbot Enabled <3";
+            sta.ForeColor = Color.Green;
+        }
+
+        private void RestoreValuesHead(Dictionary<long, byte[]> dictionary)
+        {
+            foreach (var entry in dictionary)
+            {
+                int value = BitConverter.ToInt32(entry.Value, 0);
+                TXCmem.SetHeadBytes(entry.Key.ToString("X"), "int", value.ToString());
+            }
+        }
+
+        private void checkBoxHead_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!AimbotHeadToggle) { AimbotHeadOFF(); AimbotHeadToggle = true; }
+            else { AimbotHeadON(); AimbotHeadToggle = false; }
+        }
+
+        private void bindBtnHead_Click(object sender, EventArgs e)
+        {
+            bindBtnHead.ForeColor = Color.Red;
+            bindBtnHead.Text = "...";
+            waitPressKeyHead = true;
         }
 
         // ─── Generate session code (e.g. LC-A1B2C3) ───
@@ -526,8 +667,16 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                         switch (action.ToLower())
                         {
                             case "load":
-                                // ── AIMBOT 1: Existing aimbot load ──
+                                // ── AIMBOT DRAG ──
                                 button1.PerformClick();
+                                Application.DoEvents();
+                                Thread.Sleep(100);
+                                responseText = sta.Text;
+                                break;
+
+                            case "loadhead":
+                                // ── AIMBOT HEAD ──
+                                LoadAimbotHead();
                                 Application.DoEvents();
                                 Thread.Sleep(100);
                                 responseText = sta.Text;
@@ -540,15 +689,30 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                                 responseText = sta.Text;
                                 break;
 
+                            case "togglehead":
+                                checkBoxHead.Checked = !checkBoxHead.Checked;
+                                Application.DoEvents();
+                                Thread.Sleep(50);
+                                responseText = sta.Text;
+                                break;
+
                             // ─────────────────────────────────────────
                             //  BIND KEY ─ target select karne ke baad hi
                             // ─────────────────────────────────────────
                             case "bind":
-                               
-                                bindBtn.PerformClick();
-                                Application.DoEvents();
-                                Thread.Sleep(50);
-                                responseText = sta.Text;
+                                // Direct inline - PerformClick on hidden btn unreliable
+                                bindBtn.ForeColor = Color.Red;
+                                bindBtn.Text = "...";
+                                waitPressKey = true;
+                                responseText = "Press a key for Drag bind...";
+                                break;
+
+                            case "bindhead":
+                                // Direct inline - hidden button PerformClick fix
+                                bindBtnHead.ForeColor = Color.Red;
+                                bindBtnHead.Text = "...";
+                                waitPressKeyHead = true;
+                                responseText = "Press a key for Head bind...";
                                 break;
 
                             case "location":
