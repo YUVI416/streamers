@@ -187,10 +187,19 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
 
     <!-- ══ Panel: Sniper ══ -->
     <div class="mpanel" id="mp-sniper">
-      <div class="coming">
-        <div class="coming-icon">◎</div>
-        <div class="coming-txt">Sniper Mode</div>
-        <div class="coming-sub">Coming Soon</div>
+      <!-- Sniper Scope -->
+      <div class="asel-label" style="margin-top:.5rem;">◎ Sniper Scope</div>
+      <div class="bg">
+        <button class="btn"     onclick="cmd('loadscope')">Load Scope</button>
+        <button class="btn btn-o" onclick="cmd('togglescope')">Toggle</button>
+        <button class="btn btn-o bfl" onclick="cmd('bindscope')">Bind Key</button>
+      </div>
+      <!-- Sniper Switch -->
+      <div class="asel-label" style="margin-top:.9rem;">⇄ Sniper Switch</div>
+      <div class="bg">
+        <button class="btn"     onclick="cmd('loadswitch')">Load Switch</button>
+        <button class="btn btn-o" onclick="cmd('toggleswitch')">Toggle</button>
+        <button class="btn btn-o bfl" onclick="cmd('bindswitch')">Bind Key</button>
       </div>
     </div>
 

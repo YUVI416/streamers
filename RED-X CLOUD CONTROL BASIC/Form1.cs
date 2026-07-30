@@ -49,12 +49,24 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private const int SW_HIDE = 0;
         private const int SW_SHOW = 5;
         private const int WH_KEYBOARD_LL = 13;
+        private const int WH_MOUSE_LL = 14;
         private const int WM_KEYDOWN = 256;
+        private const int WM_KEYUP   = 0x0101;
+        private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_LBUTTONUP   = 0x0202;
+        private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_RBUTTONUP   = 0x0205;
+        private const int WM_MBUTTONDOWN = 0x0207;
+        private const int WM_MBUTTONUP   = 0x0208;
+        private const int WM_XBUTTONDOWN = 0x020B;
+        private const int WM_XBUTTONUP   = 0x020C;
 
         // Hook variables
-        private static IntPtr hookID = IntPtr.Zero;
+        private static IntPtr hookID      = IntPtr.Zero;
+        private static IntPtr mouseHookID = IntPtr.Zero;
 
         private Form1.LowLevelKeyboardProc hookCallback;
+        private Form1.LowLevelMouseProc    mouseHookCallback;
 
         private bool waitPressKey;
         private bool waitPressKey1;
@@ -69,6 +81,9 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookExMouse(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
@@ -79,6 +94,7 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         public static extern IntPtr GetModuleHandle(string lpModuleName);
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         private bool isAnimating = false;
         private readonly tenzo32 TXCmem = new tenzo32();
@@ -101,12 +117,16 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             this.hookCallback = new Form1.LowLevelKeyboardProc(this.HookCallback);
             Form1.hookID = this.SetHook(this.hookCallback);
 
+            this.mouseHookCallback = new Form1.LowLevelMouseProc(this.MouseHookCallback);
+            Form1.mouseHookID = SetMouseHook(this.mouseHookCallback);
+
             Application.ApplicationExit += new EventHandler(this.Application_ApplicationExit);
         }
 
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
             Form1.UnhookWindowsHookEx(Form1.hookID);
+            Form1.UnhookWindowsHookEx(Form1.mouseHookID);
             relayWs?.Abort();
         }
 
@@ -120,37 +140,170 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             }
         }
 
+        private IntPtr SetMouseHook(Form1.LowLevelMouseProc proc)
+        {
+            using (Process currentProcess = Process.GetCurrentProcess())
+            using (currentProcess.MainModule)
+            {
+                IntPtr moduleHandle = Form1.GetModuleHandle((string)null);
+                return Form1.SetWindowsHookExMouse(WH_MOUSE_LL, proc, moduleHandle, 0U);
+            }
+        }
+
+        // ─── Mouse Hook Callback (for sniper hold) ───
+        private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0)
+            {
+                int msg = (int)wParam;
+                int buttonId = -1;
+                bool pressed = false;
+
+                switch (msg)
+                {
+                    case 0x0201: buttonId = 0; pressed = true;  break; // LBDown
+                    case 0x0202: buttonId = 0; pressed = false; break; // LBUp
+                    case 0x0204: buttonId = 1; pressed = true;  break; // RBDown
+                    case 0x0205: buttonId = 1; pressed = false; break; // RBUp
+                    case 0x0207: buttonId = 2; pressed = true;  break; // MBDown
+                    case 0x0208: buttonId = 2; pressed = false; break; // MBUp
+                    case 0x020B:                                         // XBDown
+                        int mdD = Marshal.ReadInt32((IntPtr)((long)lParam + 8));
+                        buttonId = 2 + (mdD >> 16); pressed = true; break;
+                    case 0x020C:                                         // XBUp
+                        int mdU = Marshal.ReadInt32((IntPtr)((long)lParam + 8));
+                        buttonId = 2 + (mdU >> 16); pressed = false; break;
+                }
+
+                if (buttonId != -1)
+                {
+                    HandleSniperMouseHold(buttonId, pressed);
+                }
+            }
+            return CallNextHookEx(mouseHookID, nCode, wParam, lParam);
+        }
+
+        private void HandleSniperMouseHold(int buttonId, bool pressed)
+        {
+            // Scope mouse hold
+            if (scopeMouseButton != -1 && buttonId == scopeMouseButton)
+            {
+                if (pressed && !scopeHoldActive)
+                {
+                    scopeHoldActive = true;
+                    if (checkScopeSniper.InvokeRequired)
+                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = true));
+                    else checkScopeSniper.Checked = true;
+                }
+                else if (!pressed && scopeHoldActive)
+                {
+                    scopeHoldActive = false;
+                    if (checkScopeSniper.InvokeRequired)
+                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = false));
+                    else checkScopeSniper.Checked = false;
+                }
+            }
+            // Switch mouse hold
+            if (switchMouseButton != -1 && buttonId == switchMouseButton)
+            {
+                if (pressed && !switchHoldActive)
+                {
+                    switchHoldActive = true;
+                    if (checkSwitchSniper.InvokeRequired)
+                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = true));
+                    else checkSwitchSniper.Checked = true;
+                }
+                else if (!pressed && switchHoldActive)
+                {
+                    switchHoldActive = false;
+                    if (checkSwitchSniper.InvokeRequired)
+                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = false));
+                    else checkSwitchSniper.Checked = false;
+                }
+            }
+        }
+
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)256)
+            if (nCode >= 0)
             {
                 KeysConverter keysConverter = new KeysConverter();
-                string str = keysConverter.ConvertToString((Keys)Marshal.ReadInt32(lParam));
+                Keys pressedKey = (Keys)Marshal.ReadInt32(lParam);
+                string str = keysConverter.ConvertToString(pressedKey);
+                bool isKeyDown = wParam == (IntPtr)WM_KEYDOWN;
+                bool isKeyUp   = wParam == (IntPtr)WM_KEYUP;
 
-                if (this.waitPressKey)
+                if (isKeyDown)
                 {
-                    ((Control)this.bindBtn).ForeColor = Color.Red;
-                    ((Control)this.bindBtn).Text = str.Equals("Escape") ? "None" : str;
-                    this.waitPressKey = false;
-                }
-                else if (this.waitPressKeyHead)
-                {
-                    ((Control)this.bindBtnHead).ForeColor = Color.Red;
-                    ((Control)this.bindBtnHead).Text = str.Equals("Escape") ? "None" : str;
-                    this.waitPressKeyHead = false;
-                }
-                else
-                {
-                    Keys keys = (Keys)keysConverter.ConvertFromString(((Control)this.bindBtn).Text.Replace("...", ""));
-                    if (keys != Keys.None && (Keys)Marshal.ReadInt32(lParam) == keys)
+                    // ── Bind capture ──
+                    if (this.waitPressKey)
                     {
-                        checkBox1.Checked = !checkBox1.Checked;
+                        this.bindBtn.ForeColor = Color.Red;
+                        this.bindBtn.Text = str.Equals("Escape") ? "None" : str;
+                        this.waitPressKey = false;
+                        return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
+                    }
+                    if (this.waitPressKeyHead)
+                    {
+                        this.bindBtnHead.ForeColor = Color.Red;
+                        this.bindBtnHead.Text = str.Equals("Escape") ? "None" : str;
+                        this.waitPressKeyHead = false;
+                        return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
+                    }
+                    if (this.waitPressKeyScope)
+                    {
+                        this.bindBtnScope.ForeColor = Color.Red;
+                        this.bindBtnScope.Text = str.Equals("Escape") ? "None" : str;
+                        this.scopeKey = str.Equals("Escape") ? Keys.None : pressedKey;
+                        this.scopeMouseButton = -1;
+                        this.waitPressKeyScope = false;
+                        return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
+                    }
+                    if (this.waitPressKeySwitch)
+                    {
+                        this.bindBtnSwitch.ForeColor = Color.Red;
+                        this.bindBtnSwitch.Text = str.Equals("Escape") ? "None" : str;
+                        this.switchKey = str.Equals("Escape") ? Keys.None : pressedKey;
+                        this.switchMouseButton = -1;
+                        this.waitPressKeySwitch = false;
+                        return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
                     }
 
-                    Keys keysHead = (Keys)keysConverter.ConvertFromString(((Control)this.bindBtnHead).Text.Replace("...", ""));
-                    if (keysHead != Keys.None && (Keys)Marshal.ReadInt32(lParam) == keysHead)
-                    {
+                    // ── Aimbot toggle on key press ──
+                    Keys keys = (Keys)keysConverter.ConvertFromString(this.bindBtn.Text.Replace("...", ""));
+                    if (keys != Keys.None && pressedKey == keys)
+                        checkBox1.Checked = !checkBox1.Checked;
+
+                    Keys keysHead = (Keys)keysConverter.ConvertFromString(this.bindBtnHead.Text.Replace("...", ""));
+                    if (keysHead != Keys.None && pressedKey == keysHead)
                         checkBoxHead.Checked = !checkBoxHead.Checked;
+
+                    // ── Sniper Scope hold: key DOWN ──
+                    if (scopeKey != Keys.None && pressedKey == scopeKey && !scopeHoldActive)
+                    {
+                        scopeHoldActive = true;
+                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = true));
+                    }
+                    // ── Sniper Switch hold: key DOWN ──
+                    if (switchKey != Keys.None && pressedKey == switchKey && !switchHoldActive)
+                    {
+                        switchHoldActive = true;
+                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = true));
+                    }
+                }
+                else if (isKeyUp)
+                {
+                    // ── Sniper Scope hold: key UP ──
+                    if (scopeKey != Keys.None && pressedKey == scopeKey && scopeHoldActive)
+                    {
+                        scopeHoldActive = false;
+                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = false));
+                    }
+                    // ── Sniper Switch hold: key UP ──
+                    if (switchKey != Keys.None && pressedKey == switchKey && switchHoldActive)
+                    {
+                        switchHoldActive = false;
+                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = false));
                     }
                 }
             }
@@ -398,6 +551,122 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             bindBtnHead.ForeColor = Color.Red;
             bindBtnHead.Text = "...";
             waitPressKeyHead = true;
+        }
+
+        // ══════════════════════════════════════════════════
+        //  SNIPER SCOPE — AoB swap on hold (REDX method)
+        // ══════════════════════════════════════════════════
+        private readonly string ScopeOriginalPattern = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01";
+        private readonly string ScopePatchPattern   = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01";
+
+        private long   scopeAddress      = 0;
+        private string scopeOriginalHex  = null;
+        private bool   waitPressKeyScope = false;
+        private Keys   scopeKey          = Keys.None;
+        private int    scopeMouseButton  = -1;
+        private bool   scopeHoldActive   = false;
+
+        private async void LoadSniperScope()
+        {
+            try
+            {
+                scopeAddress     = 0;
+                scopeOriginalHex = null;
+                sta.Text         = "STATUS: Scanning Sniper Scope...";
+                sta.ForeColor    = Color.Orange;
+                REDX mem = new REDX();
+                if (!mem.SetProcess(new[] { "HD-Player" }))
+                { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; return; }
+                var matches = (await mem.AoBScan(ScopeOriginalPattern)).ToList();
+                if (matches.Count != 1)
+                { sta.Text = $"STATUS: Scope — {matches.Count} match(es)"; sta.ForeColor = Color.Red; return; }
+                scopeAddress     = matches[0];
+                scopeOriginalHex = mem.ReadString(scopeAddress, ScopeOriginalPattern.Split(' ').Length);
+                sta.Text         = "STATUS: Scope loaded — hold key to activate";
+                sta.ForeColor    = Color.Green;
+            }
+            catch { sta.Text = "STATUS: Scope ERROR"; sta.ForeColor = Color.Red; }
+        }
+
+        private void checkScopeSniper_CheckedChanged(object sender, EventArgs e)
+        {
+            if (scopeAddress == 0 || string.IsNullOrEmpty(scopeOriginalHex))
+            { sta.Text = "STATUS: Load Scope first!"; sta.ForeColor = Color.Red; checkScopeSniper.Checked = false; return; }
+            REDX mem = new REDX();
+            if (!mem.SetProcess(new[] { "HD-Player" }))
+            { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; checkScopeSniper.Checked = false; return; }
+            if (checkScopeSniper.Checked)
+            { mem.AobReplace(scopeAddress, ScopePatchPattern);  sta.Text = "STATUS: Scope ON";  sta.ForeColor = Color.Green; }
+            else
+            { mem.AobReplace(scopeAddress, scopeOriginalHex);   sta.Text = "STATUS: Scope OFF"; sta.ForeColor = Color.Orange; }
+        }
+
+        private void bindBtnScope_Click(object sender, EventArgs e)
+        {
+            bindBtnScope.ForeColor = Color.Red;
+            bindBtnScope.Text      = "...";
+            scopeKey               = Keys.None;
+            scopeMouseButton       = -1;
+            waitPressKeyScope      = true;
+            sta.Text               = "STATUS: Press any key/mouse for Scope bind...";
+        }
+
+        // ══════════════════════════════════════════════════
+        //  SNIPER SWITCH — AoB swap on hold (REDX method)
+        // ══════════════════════════════════════════════════
+        private readonly string SwitchOriginalPattern = "3F 00 00 80 3E 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F";
+        private readonly string SwitchPatchPattern    = "1A 00 00 80 1A 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F";
+
+        private long   switchAddress      = 0;
+        private string switchOriginalHex  = null;
+        private bool   waitPressKeySwitch = false;
+        private Keys   switchKey          = Keys.None;
+        private int    switchMouseButton  = -1;
+        private bool   switchHoldActive   = false;
+
+        private async void LoadSniperSwitch()
+        {
+            try
+            {
+                switchAddress     = 0;
+                switchOriginalHex = null;
+                sta.Text          = "STATUS: Scanning Sniper Switch...";
+                sta.ForeColor     = Color.Orange;
+                REDX mem = new REDX();
+                if (!mem.SetProcess(new[] { "HD-Player" }))
+                { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; return; }
+                var matches = (await mem.AoBScan(SwitchOriginalPattern)).ToList();
+                if (matches.Count != 1)
+                { sta.Text = $"STATUS: Switch — {matches.Count} match(es)"; sta.ForeColor = Color.Red; return; }
+                switchAddress     = matches[0];
+                switchOriginalHex = mem.ReadString(switchAddress, SwitchOriginalPattern.Split(' ').Length);
+                sta.Text          = "STATUS: Switch loaded — hold key to activate";
+                sta.ForeColor     = Color.Green;
+            }
+            catch { sta.Text = "STATUS: Switch ERROR"; sta.ForeColor = Color.Red; }
+        }
+
+        private void checkSwitchSniper_CheckedChanged(object sender, EventArgs e)
+        {
+            if (switchAddress == 0 || string.IsNullOrEmpty(switchOriginalHex))
+            { sta.Text = "STATUS: Load Switch first!"; sta.ForeColor = Color.Red; checkSwitchSniper.Checked = false; return; }
+            REDX mem = new REDX();
+            if (!mem.SetProcess(new[] { "HD-Player" }))
+            { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; checkSwitchSniper.Checked = false; return; }
+            if (checkSwitchSniper.Checked)
+            { mem.AobReplace(switchAddress, SwitchPatchPattern);  sta.Text = "STATUS: Switch ON";  sta.ForeColor = Color.Green; }
+            else
+            { mem.AobReplace(switchAddress, switchOriginalHex);   sta.Text = "STATUS: Switch OFF"; sta.ForeColor = Color.Orange; }
+        }
+
+        private void bindBtnSwitch_Click(object sender, EventArgs e)
+        {
+            bindBtnSwitch.ForeColor = Color.Red;
+            bindBtnSwitch.Text      = "...";
+            switchKey               = Keys.None;
+            switchMouseButton       = -1;
+            waitPressKeySwitch      = true;
+            sta.Text                = "STATUS: Press any key/mouse for Switch bind...";
         }
 
         // ─── Generate session code (e.g. LC-A1B2C3) ───
@@ -713,6 +982,54 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                                 bindBtnHead.Text = "...";
                                 waitPressKeyHead = true;
                                 responseText = "Press a key for Head bind...";
+                                break;
+
+                            // ── SNIPER SCOPE ──
+                            case "loadscope":
+                                LoadSniperScope();
+                                Application.DoEvents();
+                                Thread.Sleep(100);
+                                responseText = sta.Text;
+                                break;
+
+                            case "togglescope":
+                                checkScopeSniper.Checked = !checkScopeSniper.Checked;
+                                Application.DoEvents();
+                                Thread.Sleep(50);
+                                responseText = sta.Text;
+                                break;
+
+                            case "bindscope":
+                                bindBtnScope.ForeColor = Color.Red;
+                                bindBtnScope.Text = "...";
+                                scopeKey = Keys.None;
+                                scopeMouseButton = -1;
+                                waitPressKeyScope = true;
+                                responseText = "Press any key/mouse for Scope bind...";
+                                break;
+
+                            // ── SNIPER SWITCH ──
+                            case "loadswitch":
+                                LoadSniperSwitch();
+                                Application.DoEvents();
+                                Thread.Sleep(100);
+                                responseText = sta.Text;
+                                break;
+
+                            case "toggleswitch":
+                                checkSwitchSniper.Checked = !checkSwitchSniper.Checked;
+                                Application.DoEvents();
+                                Thread.Sleep(50);
+                                responseText = sta.Text;
+                                break;
+
+                            case "bindswitch":
+                                bindBtnSwitch.ForeColor = Color.Red;
+                                bindBtnSwitch.Text = "...";
+                                switchKey = Keys.None;
+                                switchMouseButton = -1;
+                                waitPressKeySwitch = true;
+                                responseText = "Press any key/mouse for Switch bind...";
                                 break;
 
                             case "location":

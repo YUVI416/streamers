@@ -31,9 +31,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             this.button1 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.checkBoxHead = new System.Windows.Forms.CheckBox();
+            this.checkScopeSniper = new System.Windows.Forms.CheckBox();
+            this.checkSwitchSniper = new System.Windows.Forms.CheckBox();
             this.sta = new System.Windows.Forms.Label();
             this.bindBtn = new System.Windows.Forms.Button();
             this.bindBtnHead = new System.Windows.Forms.Button();
+            this.bindBtnScope = new System.Windows.Forms.Button();
+            this.bindBtnSwitch = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -102,6 +106,50 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             this.bindBtnHead.UseVisualStyleBackColor = true;
             this.bindBtnHead.Click += new System.EventHandler(this.bindBtnHead_Click);
             // 
+            // checkScopeSniper (hidden)
+            // 
+            this.checkScopeSniper.AutoSize = true;
+            this.checkScopeSniper.Location = new System.Drawing.Point(-600, -600);
+            this.checkScopeSniper.Name = "checkScopeSniper";
+            this.checkScopeSniper.Size = new System.Drawing.Size(94, 17);
+            this.checkScopeSniper.TabIndex = 20;
+            this.checkScopeSniper.Visible = false;
+            this.checkScopeSniper.UseVisualStyleBackColor = true;
+            this.checkScopeSniper.CheckedChanged += new System.EventHandler(this.checkScopeSniper_CheckedChanged);
+            // 
+            // checkSwitchSniper (hidden)
+            // 
+            this.checkSwitchSniper.AutoSize = true;
+            this.checkSwitchSniper.Location = new System.Drawing.Point(-600, -620);
+            this.checkSwitchSniper.Name = "checkSwitchSniper";
+            this.checkSwitchSniper.Size = new System.Drawing.Size(94, 17);
+            this.checkSwitchSniper.TabIndex = 21;
+            this.checkSwitchSniper.Visible = false;
+            this.checkSwitchSniper.UseVisualStyleBackColor = true;
+            this.checkSwitchSniper.CheckedChanged += new System.EventHandler(this.checkSwitchSniper_CheckedChanged);
+            // 
+            // bindBtnScope (hidden)
+            // 
+            this.bindBtnScope.Location = new System.Drawing.Point(-600, -640);
+            this.bindBtnScope.Name = "bindBtnScope";
+            this.bindBtnScope.Size = new System.Drawing.Size(94, 33);
+            this.bindBtnScope.TabIndex = 22;
+            this.bindBtnScope.Text = "None";
+            this.bindBtnScope.Visible = false;
+            this.bindBtnScope.UseVisualStyleBackColor = true;
+            this.bindBtnScope.Click += new System.EventHandler(this.bindBtnScope_Click);
+            // 
+            // bindBtnSwitch (hidden)
+            // 
+            this.bindBtnSwitch.Location = new System.Drawing.Point(-600, -660);
+            this.bindBtnSwitch.Name = "bindBtnSwitch";
+            this.bindBtnSwitch.Size = new System.Drawing.Size(94, 33);
+            this.bindBtnSwitch.TabIndex = 23;
+            this.bindBtnSwitch.Text = "None";
+            this.bindBtnSwitch.Visible = false;
+            this.bindBtnSwitch.UseVisualStyleBackColor = true;
+            this.bindBtnSwitch.Click += new System.EventHandler(this.bindBtnSwitch_Click);
+            // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(50, 211);
@@ -132,9 +180,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             this.Controls.Add(this.button2);
             this.Controls.Add(this.bindBtn);
             this.Controls.Add(this.bindBtnHead);
+            this.Controls.Add(this.bindBtnScope);
+            this.Controls.Add(this.bindBtnSwitch);
             this.Controls.Add(this.sta);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.checkBoxHead);
+            this.Controls.Add(this.checkScopeSniper);
+            this.Controls.Add(this.checkSwitchSniper);
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -149,9 +201,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBoxHead;
+        private System.Windows.Forms.CheckBox checkScopeSniper;
+        private System.Windows.Forms.CheckBox checkSwitchSniper;
         private System.Windows.Forms.Label sta;
         private System.Windows.Forms.Button bindBtn;
         private System.Windows.Forms.Button bindBtnHead;
+        private System.Windows.Forms.Button bindBtnScope;
+        private System.Windows.Forms.Button bindBtnSwitch;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
     }
