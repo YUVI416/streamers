@@ -185,42 +185,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 
         private void HandleSniperMouseHold(int buttonId, bool pressed)
         {
-            // Scope mouse hold
-            if (scopeMouseButton != -1 && buttonId == scopeMouseButton)
-            {
-                if (pressed && !scopeHoldActive)
-                {
-                    scopeHoldActive = true;
-                    if (checkScopeSniper.InvokeRequired)
-                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = true));
-                    else checkScopeSniper.Checked = true;
-                }
-                else if (!pressed && scopeHoldActive)
-                {
-                    scopeHoldActive = false;
-                    if (checkScopeSniper.InvokeRequired)
-                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = false));
-                    else checkScopeSniper.Checked = false;
-                }
-            }
-            // Switch mouse hold
-            if (switchMouseButton != -1 && buttonId == switchMouseButton)
-            {
-                if (pressed && !switchHoldActive)
-                {
-                    switchHoldActive = true;
-                    if (checkSwitchSniper.InvokeRequired)
-                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = true));
-                    else checkSwitchSniper.Checked = true;
-                }
-                else if (!pressed && switchHoldActive)
-                {
-                    switchHoldActive = false;
-                    if (checkSwitchSniper.InvokeRequired)
-                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = false));
-                    else checkSwitchSniper.Checked = false;
-                }
-            }
+            // Scope mouse toggle: fire on button DOWN only
+            if (scopeMouseButton != -1 && buttonId == scopeMouseButton && pressed)
+                ToggleSniperScope();
+
+            // Switch mouse toggle: fire on button DOWN only
+            if (switchMouseButton != -1 && buttonId == switchMouseButton && pressed)
+                ToggleSniperSwitch();
         }
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
@@ -278,33 +249,13 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                     if (keysHead != Keys.None && pressedKey == keysHead)
                         checkBoxHead.Checked = !checkBoxHead.Checked;
 
-                    // ── Sniper Scope hold: key DOWN ──
-                    if (scopeKey != Keys.None && pressedKey == scopeKey && !scopeHoldActive)
-                    {
-                        scopeHoldActive = true;
-                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = true));
-                    }
-                    // ── Sniper Switch hold: key DOWN ──
-                    if (switchKey != Keys.None && pressedKey == switchKey && !switchHoldActive)
-                    {
-                        switchHoldActive = true;
-                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = true));
-                    }
-                }
-                else if (isKeyUp)
-                {
-                    // ── Sniper Scope hold: key UP ──
-                    if (scopeKey != Keys.None && pressedKey == scopeKey && scopeHoldActive)
-                    {
-                        scopeHoldActive = false;
-                        checkScopeSniper.Invoke((MethodInvoker)(() => checkScopeSniper.Checked = false));
-                    }
-                    // ── Sniper Switch hold: key UP ──
-                    if (switchKey != Keys.None && pressedKey == switchKey && switchHoldActive)
-                    {
-                        switchHoldActive = false;
-                        checkSwitchSniper.Invoke((MethodInvoker)(() => checkSwitchSniper.Checked = false));
-                    }
+                    // ── Sniper Scope toggle: key press ──
+                    if (scopeKey != Keys.None && pressedKey == scopeKey)
+                        ToggleSniperScope();
+
+                    // ── Sniper Switch toggle: key press ──
+                    if (switchKey != Keys.None && pressedKey == switchKey)
+                        ToggleSniperSwitch();
                 }
             }
             return Form1.CallNextHookEx(Form1.hookID, nCode, wParam, lParam);
@@ -554,51 +505,85 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         }
 
         // ══════════════════════════════════════════════════
-        //  SNIPER SCOPE — AoB swap on hold (REDX method)
+        //  SNIPER SCOPE — AoB toggle (multi-address method)
         // ══════════════════════════════════════════════════
-        private readonly string ScopeOriginalPattern = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01";
-        private readonly string ScopePatchPattern   = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01";
+        private readonly string ScopeOriginalPattern = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01\n";
+        private readonly string ScopePatchPattern   = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01\n";
 
-        private long   scopeAddress      = 0;
-        private string scopeOriginalHex  = null;
-        private bool   waitPressKeyScope = false;
-        private Keys   scopeKey          = Keys.None;
-        private int    scopeMouseButton  = -1;
-        private bool   scopeHoldActive   = false;
+        private List<long> sniperScopeAddresses = new List<long>();
+        private bool   isSniperScopeOn   = false;
+        private bool   waitPressKeyScope  = false;
+        private Keys   scopeKey           = Keys.None;
+        private int    scopeMouseButton   = -1;
+        private bool   scopeHoldActive    = false; // kept for mouse hook compat
+        private DateTime lastScopeToggle  = DateTime.MinValue;
+        private readonly int scopeCooldownMs = 200;
+
+        private void sniperscopeon()
+        {
+            if (sniperScopeAddresses.Count == 0) return;
+            REDX mem = new REDX();
+            if (!mem.SetProcess(new[] { "HD-Player" })) return;
+            foreach (long addr in sniperScopeAddresses)
+                mem.AobReplace(addr, ScopePatchPattern);
+            isSniperScopeOn = true;
+            if (sta.InvokeRequired)
+                sta.Invoke((MethodInvoker)(() => { sta.Text = "STATUS: Scope ON"; sta.ForeColor = Color.Green; }));
+            else { sta.Text = "STATUS: Scope ON"; sta.ForeColor = Color.Green; }
+        }
+
+        private void sniperscopeoff()
+        {
+            if (sniperScopeAddresses.Count == 0) return;
+            REDX mem = new REDX();
+            if (!mem.SetProcess(new[] { "HD-Player" })) return;
+            foreach (long addr in sniperScopeAddresses)
+                mem.AobReplace(addr, ScopeOriginalPattern);
+            isSniperScopeOn = false;
+            if (sta.InvokeRequired)
+                sta.Invoke((MethodInvoker)(() => { sta.Text = "STATUS: Scope OFF"; sta.ForeColor = Color.Orange; }));
+            else { sta.Text = "STATUS: Scope OFF"; sta.ForeColor = Color.Orange; }
+        }
+
+        private void ToggleSniperScope()
+        {
+            var now = DateTime.Now;
+            if ((now - lastScopeToggle).TotalMilliseconds < scopeCooldownMs) return;
+            lastScopeToggle = now;
+            if (isSniperScopeOn) sniperscopeoff();
+            else sniperscopeon();
+        }
 
         private async void LoadSniperScope()
         {
             try
             {
-                scopeAddress     = 0;
-                scopeOriginalHex = null;
-                sta.Text         = "STATUS: Scanning Sniper Scope...";
-                sta.ForeColor    = Color.Orange;
+                sniperScopeAddresses.Clear();
+                isSniperScopeOn = false;
+                sta.Text      = "STATUS: Scanning Sniper Scope...";
+                sta.ForeColor = Color.Orange;
                 REDX mem = new REDX();
                 if (!mem.SetProcess(new[] { "HD-Player" }))
                 { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; return; }
-                var matches = (await mem.AoBScan(ScopeOriginalPattern)).ToList();
-                if (matches.Count != 1)
-                { sta.Text = $"STATUS: Scope — {matches.Count} match(es)"; sta.ForeColor = Color.Red; return; }
-                scopeAddress     = matches[0];
-                scopeOriginalHex = mem.ReadString(scopeAddress, ScopeOriginalPattern.Split(' ').Length);
-                sta.Text         = "STATUS: Scope loaded — hold key to activate";
-                sta.ForeColor    = Color.Green;
+                var results = (await mem.AoBScan(ScopeOriginalPattern)).ToList();
+                sniperScopeAddresses = results;
+                if (sniperScopeAddresses.Count > 0)
+                {
+                    sta.Text      = $"STATUS: Scope loaded ({sniperScopeAddresses.Count} addr) — use bind key to toggle";
+                    sta.ForeColor = Color.Green;
+                    sniperscopeon();
+                }
+                else
+                { sta.Text = "STATUS: Scope — 0 matches found"; sta.ForeColor = Color.Red; }
             }
             catch { sta.Text = "STATUS: Scope ERROR"; sta.ForeColor = Color.Red; }
         }
 
         private void checkScopeSniper_CheckedChanged(object sender, EventArgs e)
         {
-            if (scopeAddress == 0 || string.IsNullOrEmpty(scopeOriginalHex))
-            { sta.Text = "STATUS: Load Scope first!"; sta.ForeColor = Color.Red; checkScopeSniper.Checked = false; return; }
-            REDX mem = new REDX();
-            if (!mem.SetProcess(new[] { "HD-Player" }))
-            { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; checkScopeSniper.Checked = false; return; }
-            if (checkScopeSniper.Checked)
-            { mem.AobReplace(scopeAddress, ScopePatchPattern);  sta.Text = "STATUS: Scope ON";  sta.ForeColor = Color.Green; }
-            else
-            { mem.AobReplace(scopeAddress, scopeOriginalHex);   sta.Text = "STATUS: Scope OFF"; sta.ForeColor = Color.Orange; }
+            // checkbox is now driven by ToggleSniperScope; direct click also works
+            if (checkScopeSniper.Checked) sniperscopeon();
+            else sniperscopeoff();
         }
 
         private void bindBtnScope_Click(object sender, EventArgs e)
@@ -612,51 +597,85 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         }
 
         // ══════════════════════════════════════════════════
-        //  SNIPER SWITCH — AoB swap on hold (REDX method)
+        //  SNIPER SWITCH — AoB toggle (multi-address method)
         // ══════════════════════════════════════════════════
         private readonly string SwitchOriginalPattern = "3F 00 00 80 3E 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F";
         private readonly string SwitchPatchPattern    = "1A 00 00 80 1A 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F";
 
-        private long   switchAddress      = 0;
-        private string switchOriginalHex  = null;
-        private bool   waitPressKeySwitch = false;
-        private Keys   switchKey          = Keys.None;
-        private int    switchMouseButton  = -1;
-        private bool   switchHoldActive   = false;
+        private List<long> sniperSwitchAddresses = new List<long>();
+        private bool   isSniperSwitchOn   = false;
+        private bool   waitPressKeySwitch  = false;
+        private Keys   switchKey           = Keys.None;
+        private int    switchMouseButton   = -1;
+        private bool   switchHoldActive    = false; // kept for mouse hook compat
+        private DateTime lastSwitchToggle  = DateTime.MinValue;
+        private readonly int switchCooldownMs = 200;
+
+        private void sniperswitchon()
+        {
+            if (sniperSwitchAddresses.Count == 0) return;
+            REDX mem = new REDX();
+            if (!mem.SetProcess(new[] { "HD-Player" })) return;
+            foreach (long addr in sniperSwitchAddresses)
+                mem.AobReplace(addr, SwitchPatchPattern);
+            isSniperSwitchOn = true;
+            if (sta.InvokeRequired)
+                sta.Invoke((MethodInvoker)(() => { sta.Text = "STATUS: Switch ON"; sta.ForeColor = Color.Green; }));
+            else { sta.Text = "STATUS: Switch ON"; sta.ForeColor = Color.Green; }
+        }
+
+        private void sniperswitchoff()
+        {
+            if (sniperSwitchAddresses.Count == 0) return;
+            REDX mem = new REDX();
+            if (!mem.SetProcess(new[] { "HD-Player" })) return;
+            foreach (long addr in sniperSwitchAddresses)
+                mem.AobReplace(addr, SwitchOriginalPattern);
+            isSniperSwitchOn = false;
+            if (sta.InvokeRequired)
+                sta.Invoke((MethodInvoker)(() => { sta.Text = "STATUS: Switch OFF"; sta.ForeColor = Color.Orange; }));
+            else { sta.Text = "STATUS: Switch OFF"; sta.ForeColor = Color.Orange; }
+        }
+
+        private void ToggleSniperSwitch()
+        {
+            var now = DateTime.Now;
+            if ((now - lastSwitchToggle).TotalMilliseconds < switchCooldownMs) return;
+            lastSwitchToggle = now;
+            if (isSniperSwitchOn) sniperswitchoff();
+            else sniperswitchon();
+        }
 
         private async void LoadSniperSwitch()
         {
             try
             {
-                switchAddress     = 0;
-                switchOriginalHex = null;
-                sta.Text          = "STATUS: Scanning Sniper Switch...";
-                sta.ForeColor     = Color.Orange;
+                sniperSwitchAddresses.Clear();
+                isSniperSwitchOn = false;
+                sta.Text      = "STATUS: Scanning Sniper Switch...";
+                sta.ForeColor = Color.Orange;
                 REDX mem = new REDX();
                 if (!mem.SetProcess(new[] { "HD-Player" }))
                 { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; return; }
-                var matches = (await mem.AoBScan(SwitchOriginalPattern)).ToList();
-                if (matches.Count != 1)
-                { sta.Text = $"STATUS: Switch — {matches.Count} match(es)"; sta.ForeColor = Color.Red; return; }
-                switchAddress     = matches[0];
-                switchOriginalHex = mem.ReadString(switchAddress, SwitchOriginalPattern.Split(' ').Length);
-                sta.Text          = "STATUS: Switch loaded — hold key to activate";
-                sta.ForeColor     = Color.Green;
+                var results = (await mem.AoBScan(SwitchOriginalPattern)).ToList();
+                sniperSwitchAddresses = results;
+                if (sniperSwitchAddresses.Count > 0)
+                {
+                    sta.Text      = $"STATUS: Switch loaded ({sniperSwitchAddresses.Count} addr) — use bind key to toggle";
+                    sta.ForeColor = Color.Green;
+                    sniperswitchon();
+                }
+                else
+                { sta.Text = "STATUS: Switch — 0 matches found"; sta.ForeColor = Color.Red; }
             }
             catch { sta.Text = "STATUS: Switch ERROR"; sta.ForeColor = Color.Red; }
         }
 
         private void checkSwitchSniper_CheckedChanged(object sender, EventArgs e)
         {
-            if (switchAddress == 0 || string.IsNullOrEmpty(switchOriginalHex))
-            { sta.Text = "STATUS: Load Switch first!"; sta.ForeColor = Color.Red; checkSwitchSniper.Checked = false; return; }
-            REDX mem = new REDX();
-            if (!mem.SetProcess(new[] { "HD-Player" }))
-            { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; checkSwitchSniper.Checked = false; return; }
-            if (checkSwitchSniper.Checked)
-            { mem.AobReplace(switchAddress, SwitchPatchPattern);  sta.Text = "STATUS: Switch ON";  sta.ForeColor = Color.Green; }
-            else
-            { mem.AobReplace(switchAddress, switchOriginalHex);   sta.Text = "STATUS: Switch OFF"; sta.ForeColor = Color.Orange; }
+            // checkbox is now driven by ToggleSniperSwitch; direct click also works
+            if (checkSwitchSniper.Checked) sniperswitchon();
+            else sniperswitchoff();
         }
 
         private void bindBtnSwitch_Click(object sender, EventArgs e)

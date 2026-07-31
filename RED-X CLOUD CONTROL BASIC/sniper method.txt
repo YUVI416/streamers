@@ -1,0 +1,218 @@
+///////////////////////////////////////////Button er upore//////////////////////////////////////////////
+
+
+
+
+
+ List<long> sniperScopeAddresses = new List<long>();
+ string sniperScopeoriginalBytes = "06 00 00 00 00 00 00 00 00 00 00 00 00 00 F0 41 00 00 48 42 00 00 00 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01 00 00 00";
+ string patchedBytes = "06 00 00 00 00 00 C5 7F 00 00 00 00 00 00 F0 41 00 00 48 42 00 00 00 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01 00 00 00";
+
+ meow memoryfast = new meow();
+ string[] processname = { "HD-Player" };
+
+
+
+ private void sniperscopeoff()
+ {
+     if (sniperScopeAddresses.Count == 0)
+         return;
+
+     foreach (long addr in sniperScopeAddresses)
+     {
+         memoryfast.AobReplace(addr, sniperScopeoriginalBytes);
+     }
+
+     Invoke((Action)(() =>
+     {
+
+     }));
+ }
+ private IKeyboardMouseEvents globalHook;
+ private System.Windows.Forms.Timer sniperTimeoutTimer;
+
+ private DateTime lastToggleTime;
+
+ bool isSniperScopeOn = false;
+ bool isListeningForKey = false;
+ Keys toggleKey = Keys.None;
+ MouseButtons toggleMouseButton = MouseButtons.None;
+ int toggleWheelDirection = 0; // 1 = up, -1 = down, 0 = not set
+
+ private void sniperscopeon()
+ {
+     if (sniperScopeAddresses.Count == 0)
+         return;
+
+     foreach (long addr in sniperScopeAddresses)
+     {
+         memoryfast.AobReplace(addr, patchedBytes);
+     }
+
+     Invoke((Action)(() =>
+     {
+
+     }));
+ }
+
+
+ private async void SniperTimeoutTimer_Tick(object sender, EventArgs e)
+ {
+     if (isSniperScopeOn)
+     {
+         TimeSpan elapsed = DateTime.Now - lastToggleTime;
+         if (elapsed.TotalSeconds >= 0)
+         {
+             sniperscopeon();
+             await Task.Delay(330);
+
+             isSniperScopeOn = false;
+
+         }
+         else
+         {
+             // Force re-sync during active time
+             //sniperscopeon();
+
+         }
+     }
+ }
+
+
+ private void GlobalHook_KeyUp(object sender, KeyEventArgs e)
+ {
+     if (isListeningForKey)
+     {
+         toggleKey = e.KeyCode;
+         toggleMouseButton = MouseButtons.None;
+         toggleWheelDirection = 0;
+
+
+         isListeningForKey = false;
+     }
+     else if (e.KeyCode == toggleKey)
+     {
+         ToggleSniperScope();
+     }
+ }
+
+
+ private void GlobalHook_MouseUp(object sender, MouseEventArgs e)
+ {
+     if (isListeningForKey)
+     {
+         toggleMouseButton = e.Button;
+         toggleKey = Keys.None;
+         toggleWheelDirection = 0;
+
+
+         isListeningForKey = false;
+     }
+     else
+     {
+         if (e.Button == toggleMouseButton || e.Button == MouseButtons.Left)
+         {
+             ToggleSniperScope();
+         }
+     }
+ }
+
+
+
+ private void GlobalHook_MouseWheel(object sender, MouseEventArgs e)
+ {
+     if (isListeningForKey)
+     {
+         toggleWheelDirection = e.Delta > 0 ? 1 : -1;
+         toggleKey = Keys.None;
+         toggleMouseButton = MouseButtons.None;
+         string direction = toggleWheelDirection == 1 ? "Wheel UP" : "Wheel DOWN";
+
+         status.Text = $"Sniper Toggle set to {direction}";
+         isListeningForKey = false;
+     }
+     else
+     {
+         if ((toggleWheelDirection == 1 && e.Delta > 0) ||
+             (toggleWheelDirection == -1 && e.Delta < 0))
+         {
+             ToggleSniperScope();
+         }
+     }
+ }
+
+ private DateTime lastToggleAttempt = DateTime.MinValue;
+ private readonly int toggleCooldownMs = 200;
+
+ private async void ToggleSniperScope()
+ {
+     var now = DateTime.Now;
+     if ((now - lastToggleAttempt).TotalMilliseconds < toggleCooldownMs)
+         return;
+
+     lastToggleAttempt = now;
+
+     if (!isSniperScopeOn)
+     {
+
+         sniperscopeoff();
+
+     }
+
+
+     isSniperScopeOn = !isSniperScopeOn;
+     lastToggleTime = now;
+ }
+
+
+
+
+
+
+ /////////////////////////                              Button er Vitore           ///////////////////////////////////
+
+
+
+
+ bool success = memoryfast.SetProcess(processname);
+ if (!success)
+ {
+
+     return;
+ }
+
+
+ IEnumerable<long> results = await memoryfast.AoBScan(sniperScopeoriginalBytes);
+ sniperScopeAddresses = results.ToList();
+
+ if (sniperScopeAddresses.Count > 0)
+ {
+     status.Text = "Activating...";
+     sniperscopeon();
+     status.Text = "Success";
+ }
+ else
+ {
+
+ }
+
+
+
+
+
+
+                     From load er vitore
+
+
+
+globalHook = Hook.GlobalEvents();
+globalHook.KeyUp += GlobalHook_KeyUp;
+globalHook.MouseUp += GlobalHook_MouseUp;
+globalHook.MouseWheel += GlobalHook_MouseWheel;
+
+sniperTimeoutTimer = new System.Windows.Forms.Timer();
+sniperTimeoutTimer.Interval = 1000;
+sniperTimeoutTimer.Tick += SniperTimeoutTimer_Tick;
+sniperTimeoutTimer.Start();
+Sniper Scope Method meaw.txt
+5 KB
