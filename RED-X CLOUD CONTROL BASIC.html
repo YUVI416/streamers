@@ -267,8 +267,109 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
 })();
 
 var RL='wss://lucas-cheats-relay.onrender.com',ws=null,sc=null;
+var _reconnTimer=null,_reconnDelay=2000,_reconnecting=false;
 
 function show(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById(id).classList.add('active');}
+
+/* ── Auto-reconnect when on control page ── */
+function _setStatus(dot,label,msg){
+  var d=document.getElementById('cd'),l=document.getElementById('cl'),s=document.getElementById('cst2');
+  if(d){d.className='dot '+(dot==='on'?'on':'off');}
+  if(l)l.textContent=label;
+  if(s)s.textContent=msg;
+}
+
+function _reconnect(){
+  if(!sc||_reconnecting)return;
+  _reconnecting=true;
+  _setStatus('off','RECONNECTING...','Reconnecting...');
+  _openWs(sc,false);
+}
+
+function _openWs(code,isFirst){
+  if(ws){try{ws.onclose=null;ws.close();}catch(e){}}
+  ws=new WebSocket(RL);
+  var ok=false;
+  var t=setTimeout(function(){
+    if(!ok){
+      ws.close();
+      if(isFirst){
+        var ce=document.getElementById('ce'),btn=document.getElementById('cb');
+        ce.textContent='Connection failed';ce.classList.add('show');
+        btn.disabled=false;btn.textContent='Connect to EXE';
+      } else {
+        _reconnecting=false;
+        _scheduleReconn();
+      }
+    }
+  },8000);
+
+  ws.onopen=function(){
+    ok=true;clearTimeout(t);
+    ws.send(JSON.stringify({type:'join_web',code:code}));
+    if(isFirst){document.getElementById('sm').textContent='Waiting for EXE...';}
+  };
+
+  ws.onmessage=function(e){
+    try{
+      var m=JSON.parse(e.data);
+      if(m.type==='connected'){
+        sc=code;
+        _reconnecting=false;
+        clearTimeout(_reconnTimer);
+        _reconnDelay=2000;
+        document.getElementById('acd').textContent=code;
+        _setStatus('on','CONNECTED','Connected');
+        if(isFirst){
+          var btn=document.getElementById('cb');
+          btn.disabled=false;btn.textContent='Connect to EXE';
+          show('pg-ctrl');
+        }
+      } else if(m.type==='error'){
+        if(isFirst){
+          var ce=document.getElementById('ce'),btn=document.getElementById('cb');
+          ce.textContent=''+m.message;ce.classList.add('show');
+          btn.disabled=false;btn.textContent='Connect to EXE';
+        }
+        ws.close();
+      } else if(m.type==='response'){
+        var el=document.getElementById('cst2');
+        el.style.color='#fff';el.textContent=''+m.text;
+        setTimeout(function(){el.style.color='rgba(255,255,255,.32)';},3000);
+      }
+    }catch(x){}
+  };
+
+  ws.onclose=function(){
+    clearTimeout(t);
+    _reconnecting=false;
+    /* Only auto-reconnect if we were already on the control page */
+    if(sc){
+      _setStatus('off','DISCONNECTED','Connection lost — reconnecting...');
+      _scheduleReconn();
+    } else if(isFirst){
+      _setStatus('off','DISCONNECTED','Connection lost');
+    }
+  };
+}
+
+function _scheduleReconn(){
+  clearTimeout(_reconnTimer);
+  _reconnTimer=setTimeout(function(){_reconnect();},_reconnDelay);
+  /* Exponential backoff: 2s → 4s → 8s → max 16s */
+  _reconnDelay=Math.min(_reconnDelay*2,16000);
+}
+
+/* ── Phone unlock: reconnect immediately when tab becomes visible ── */
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&sc){
+    if(!ws||ws.readyState===WebSocket.CLOSED||ws.readyState===WebSocket.CLOSING){
+      clearTimeout(_reconnTimer);
+      _reconnDelay=2000;
+      _reconnect();
+    }
+  }
+});
 
 function go(){
   var code=document.getElementById('sci').value.trim().toUpperCase();
@@ -276,21 +377,7 @@ function go(){
   var btn=document.getElementById('cb'),sm=document.getElementById('sm'),ce=document.getElementById('ce');
   btn.disabled=true;btn.innerHTML='<span class="sp"></span>Connecting...';
   ce.classList.remove('show');sm.textContent='';
-  ws=new WebSocket(RL);var ok=false;
-  var t=setTimeout(function(){if(!ok){ws.close();ce.textContent='Connection failed';ce.classList.add('show');btn.disabled=false;btn.textContent='Connect to EXE';}},8000);
-  ws.onopen=function(){ok=true;clearTimeout(t);ws.send(JSON.stringify({type:'join_web',code:code}));sm.textContent='Waiting for EXE...';};
-  ws.onmessage=function(e){
-    try{
-      var m=JSON.parse(e.data);
-      if(m.type==='connected'){sc=code;document.getElementById('acd').textContent=code;show('pg-ctrl');btn.disabled=false;btn.textContent='Connect to EXE';}
-      else if(m.type==='error'){ce.textContent=''+m.message;ce.classList.add('show');btn.disabled=false;btn.textContent='Connect to EXE';ws.close();}
-      else if(m.type==='response'){var el=document.getElementById('cst2');el.style.color='#fff';el.textContent=''+m.text;setTimeout(function(){el.style.color='rgba(255,255,255,.32)';},3000);}
-    }catch(x){}
-  };
-  ws.onclose=function(){
-    var d=document.getElementById('cd'),l=document.getElementById('cl');
-    if(d&&d.classList.contains('on')){d.className='dot off';l.textContent='DISCONNECTED';document.getElementById('cst2').textContent='Connection lost';}
-  };
+  _openWs(code,true);
 }
 
 document.getElementById('sci').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
