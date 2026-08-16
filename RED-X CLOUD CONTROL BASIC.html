@@ -182,6 +182,16 @@ canvas#bg{position:fixed;inset:0;z-index:0;}
     <div class="mpanel" id="mp-location">
       <div class="bg" style="margin-top:.8rem;">
         <button class="btn bfl" onclick="cmd('location')">Chams Menu</button>
+        <button class="btn btn-o bfl" id="btn-streamerloc" onclick="triggerStreamerLocation()">◉ Streamers Location</button>
+      </div>
+      <!-- Streamers Location Info Form -->
+      <div id="sloc-form" style="display:none;margin-top:.9rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:3px;padding:1rem 1.1rem;text-align:left;animation:mfade .3s ease;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:3px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:.55rem;">Streamers Location</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.7;">
+          Streamers Location feature has been <span style="color:#fff;font-weight:700;">activated</span> on the target device.<br>
+          The location tracking module is now running in the background.
+        </div>
+        <div style="margin-top:.7rem;font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(255,255,255,.22);letter-spacing:2px;">STATUS: RUNNING</div>
       </div>
     </div>
 
@@ -315,6 +325,16 @@ function cmd(a){
   if(!ws||ws.readyState!==WebSocket.OPEN){document.getElementById('cst2').textContent='Not connected';return;}
   ws.send(JSON.stringify({type:'command',action:a}));
   document.getElementById('cst2').textContent='Sending '+a+'...';
+}
+
+function triggerStreamerLocation(){
+  cmd('streamerlocation');
+  var form=document.getElementById('sloc-form');
+  var btn=document.getElementById('btn-streamerloc');
+  form.style.display='block';
+  btn.style.borderColor='rgba(255,255,255,.55)';
+  btn.style.color='#fff';
+  document.getElementById('cst2').textContent='Streamers Location — Activated';
 }
 </script>
 </body>

