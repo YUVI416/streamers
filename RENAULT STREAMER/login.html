@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RENAULT CHE4TS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: #0f0f23;
+      --card: rgba(20, 20, 35, 0.7);
+      --border: rgba(100, 100, 255, 0.3);
+      --primary: #6e6eff;
+      --text: #e0e7ff;
+      --input-bg: rgba(30, 30, 50, 0.6);
+      --glow: 0 0 20px rgba(110, 110, 255, 0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Animated Orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      animation: float 12s infinite ease-in-out;
+    }
+    .orb:nth-child(1) { width: 600px; height: 600px; background: radial-gradient(circle, #6e6eff, transparent); top: -15%; left: -10%; }
+    .orb:nth-child(2) { width: 500px; height: 500px; background: radial-gradient(circle, #ff6e9c, transparent); bottom: -20%; right: -10%; animation-delay: 4s; }
+    .orb:nth-child(3) { width: 400px; height: 400px; background: radial-gradient(circle, #00d4ff, transparent); top: 60%; left: 70%; animation-delay: 8s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-50px) scale(1.15); }
+    }
+
+    /* Login Card */
+    .login-card {
+      width: 380px;
+      background: var(--card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 32px;
+      box-shadow: var(--glow);
+      position: relative;
+      z-index: 10;
+      animation: fadeIn 1.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6e6eff, #ff6e9c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+    .logo p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+
+    /* Form */
+    .form-group {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 16px;
+      background: var(--input-bg);
+      border: 1px solid rgba(110, 110, 255, 0.2);
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(110, 110, 255, 0.2);
+    }
+    .form-group label {
+      position: absolute;
+      left: 16px; top: 16px;
+      font-size: 14px;
+      color: #94a3b8;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus + label,
+    .form-group input:not(:placeholder-shown) + label {
+      top: -8px; left: 12px;
+      font-size: 11px;
+      background: var(--bg);
+      padding: 0 6px;
+      color: var(--primary);
+    }
+
+    /* Login Button */
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #6e6eff, #ff6e9c);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(110, 110, 255, 0.3);
+    }
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    .login-btn:active::after {
+      width: 300px; height: 300px;
+    }
+
+    /* Divider */
+    .divider {
+      text-align: center;
+      margin: 24px 0;
+      position: relative;
+      color: #64748b;
+      font-size: 13px;
+    }
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 1px;
+      background: rgba(100, 100, 255, 0.2);
+    }
+    .divider span {
+      background: var(--bg);
+      padding: 0 12px;
+    }
+
+    /* Social Buttons - ONLY DISCORD & TELEGRAM */
+    .social-login {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .social-btn {
+      width: 50px; height: 50px;
+      background: var(--input-bg);
+      border: 1px solid rgba(110, 110, 255, 0.2);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .social-btn:hover {
+      background: rgba(110, 110, 255, 0.15);
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(110, 110, 255, 0.2);
+    }
+    .social-btn i {
+      font-size: 20px;
+      color: var(--text);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+    }
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .login-card { width: 90%; padding: 32px 24px; }
+      .social-login { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Animated Orbs -->
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+
+  <div class="login-card">
+    <div class="logo">
+      <h1>RENAULT CHE4TS</h1>
+    </div>
+
+    <form method="POST" action="/">
+      <div class="form-group">
+        <input type="text" name="username" id="username" placeholder=" " required autocomplete="off"/>
+        <label for="username">Username</label>
+      </div>
+
+      <div class="form-group">
+        <input type="password" name="password" id="password" placeholder=" " required/>
+        <label for="password">Password</label>
+      </div>
+
+      <button type="submit" class="login-btn">
+        Log In
+      </button>
+    </form>
+
+    <div class="footer">
+      <a href="https://discord.gg/xcNAtf8Eyt">Forgot your password?</a>
+    </div>
+
+    <div class="divider"><span>or</span></div>
+
+    <!-- DISCORD + TELEGRAM ONLY -->
+    <div class="social-login">
+      <a href="https://discord.gg/xcNAtf8Eyt" target="_blank" class="social-btn">
+        <i class="fab fa-discord"></i>
+      </a>
+      <a href="https://t.me/freepanelfire" target="_blank" class="social-btn">
+        <i class="fab fa-telegram-plane"></i>
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

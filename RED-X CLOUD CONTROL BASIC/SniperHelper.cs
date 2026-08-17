@@ -250,6 +250,21 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             }
         }
 
+        public byte[] ReadBytes(long address, int length)
+        {
+            byte[] buffer = new byte[length];
+            if (ReadProcessMemory(_processHandle, (IntPtr)address, buffer, (IntPtr)length, out _))
+            {
+                return buffer;
+            }
+            return null;
+        }
+
+        public bool WriteBytes(long address, byte[] bytes)
+        {
+            return WriteProcessMemory(_processHandle, (IntPtr)address, bytes, (IntPtr)bytes.Length, IntPtr.Zero);
+        }
+
         public bool AobReplace(long address, int bytePattern)
         {
             byte[] bytes = BitConverter.GetBytes(bytePattern);

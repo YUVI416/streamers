@@ -507,8 +507,8 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         // ══════════════════════════════════════════════════
         //  SNIPER SCOPE — AoB toggle (multi-address method)
         // ══════════════════════════════════════════════════
-        private readonly string ScopeOriginalPattern = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01\n";
-        private readonly string ScopePatchPattern   = "03 00 01 00 00 00 9A 99 99 3E FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F 00 00 80 3F 01\n";
+        private readonly string ScopeOriginalPattern = "FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40";
+        private readonly string ScopePatchPattern    = "FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 3E 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 33 33 13 40";
 
         private List<long> sniperScopeAddresses = new List<long>();
         private bool   isSniperScopeOn   = false;
@@ -521,28 +521,18 @@ namespace RED_X_CLOUD_CONTROL_BASIC
 
         private void sniperscopeon()
         {
-            if (sniperScopeAddresses.Count == 0) return;
-            REDX mem = new REDX();
-            if (!mem.SetProcess(new[] { "HD-Player" })) return;
-            foreach (long addr in sniperScopeAddresses)
-                mem.AobReplace(addr, ScopePatchPattern);
-            isSniperScopeOn = true;
+            string status = RenaultSniper.SniperScopeOn();
             if (sta.InvokeRequired)
-                sta.Invoke((MethodInvoker)(() => { sta.Text = "STATUS: Scope ON"; sta.ForeColor = Color.Green; }));
-            else { sta.Text = "STATUS: Scope ON"; sta.ForeColor = Color.Green; }
+                sta.Invoke((MethodInvoker)(() => { sta.Text = status; sta.ForeColor = RenaultSniper.IsScopeActive ? Color.Green : Color.Red; }));
+            else { sta.Text = status; sta.ForeColor = RenaultSniper.IsScopeActive ? Color.Green : Color.Red; }
         }
 
         private void sniperscopeoff()
         {
-            if (sniperScopeAddresses.Count == 0) return;
-            REDX mem = new REDX();
-            if (!mem.SetProcess(new[] { "HD-Player" })) return;
-            foreach (long addr in sniperScopeAddresses)
-                mem.AobReplace(addr, ScopeOriginalPattern);
-            isSniperScopeOn = false;
+            string status = RenaultSniper.SniperScopeOff();
             if (sta.InvokeRequired)
-                sta.Invoke((MethodInvoker)(() => { sta.Text = "STATUS: Scope OFF"; sta.ForeColor = Color.Orange; }));
-            else { sta.Text = "STATUS: Scope OFF"; sta.ForeColor = Color.Orange; }
+                sta.Invoke((MethodInvoker)(() => { sta.Text = status; sta.ForeColor = Color.Orange; }));
+            else { sta.Text = status; sta.ForeColor = Color.Orange; }
         }
 
         private void ToggleSniperScope()
@@ -550,33 +540,23 @@ namespace RED_X_CLOUD_CONTROL_BASIC
             var now = DateTime.Now;
             if ((now - lastScopeToggle).TotalMilliseconds < scopeCooldownMs) return;
             lastScopeToggle = now;
-            if (isSniperScopeOn) sniperscopeoff();
-            else sniperscopeon();
+            string status = RenaultSniper.ToggleSniperScope();
+            if (sta.InvokeRequired)
+                sta.Invoke((MethodInvoker)(() => { sta.Text = status; sta.ForeColor = RenaultSniper.IsScopeActive ? Color.Green : Color.Orange; }));
+            else { sta.Text = status; sta.ForeColor = RenaultSniper.IsScopeActive ? Color.Green : Color.Orange; }
         }
 
         private async void LoadSniperScope()
         {
-            try
+            sta.Text = "STATUS: Scanning Sniper Scope...";
+            sta.ForeColor = Color.Orange;
+            string status = await RenaultSniper.SniperScopeLoad();
+            sta.Text = status;
+            sta.ForeColor = RenaultSniper.IsScopeLoaded ? Color.Green : Color.Red;
+            if (RenaultSniper.IsScopeLoaded)
             {
-                sniperScopeAddresses.Clear();
-                isSniperScopeOn = false;
-                sta.Text      = "STATUS: Scanning Sniper Scope...";
-                sta.ForeColor = Color.Orange;
-                REDX mem = new REDX();
-                if (!mem.SetProcess(new[] { "HD-Player" }))
-                { sta.Text = "STATUS: Emulator Not Found!!"; sta.ForeColor = Color.Red; return; }
-                var results = (await mem.AoBScan(ScopeOriginalPattern)).ToList();
-                sniperScopeAddresses = results;
-                if (sniperScopeAddresses.Count > 0)
-                {
-                    sta.Text      = $"STATUS: Scope loaded ({sniperScopeAddresses.Count} addr) — use bind key to toggle";
-                    sta.ForeColor = Color.Green;
-                    sniperscopeon();
-                }
-                else
-                { sta.Text = "STATUS: Scope — 0 matches found"; sta.ForeColor = Color.Red; }
+                sniperscopeon();
             }
-            catch { sta.Text = "STATUS: Scope ERROR"; sta.ForeColor = Color.Red; }
         }
 
         private void checkScopeSniper_CheckedChanged(object sender, EventArgs e)

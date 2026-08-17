@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>RENAULT CHE4TS</title>
+
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Exo+2:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: #0b0b1e;
+      color: #e0f7ff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      background-image:
+        radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 46, 124, 0.15) 0%, transparent 50%);
+    }
+
+    /* Animated Orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 25s infinite ease-in-out;
+    }
+
+    .orb-1 {
+      width: 700px;
+      height: 700px;
+      background: #00d4ff;
+      top: -15%;
+      left: -15%;
+    }
+
+    .orb-2 {
+      width: 550px;
+      height: 550px;
+      background: #ff2e7c;
+      bottom: -20%;
+      right: -10%;
+      animation-delay: 8s;
+    }
+
+    .orb-3 {
+      width: 450px;
+      height: 450px;
+      background: #7c3aed;
+      top: 40%;
+      left: 70%;
+      animation-delay: 15s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(60px, -80px) scale(1.2);
+      }
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 30, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 26px;
+      background: linear-gradient(90deg, #00d4ff, #ff2e7c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .user-info {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .user-info i {
+      color: #00d4ff;
+    }
+
+    .status-badge {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 12px;
+      background: #166534;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 15px rgba(22, 101, 52, 0.6);
+    }
+
+    .status-badge.offline {
+      background: #991b1b;
+      box-shadow: 0 0 15px rgba(153, 27, 27, 0.6);
+    }
+
+    /* Container */
+    .container {
+      max-width: 780px;
+      margin: 24px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Panel */
+    .panel {
+      background: rgba(15, 15, 40, 0.7);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #00d4ff, #ff2e7c, #7c3aed);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .panel:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0, 212, 255, 0.25);
+    }
+
+    .panel h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 19px;
+      color: #fff;
+      margin-bottom: 16px;
+      padding-left: 12px;
+      border-left: 4px solid #00d4ff;
+      letter-spacing: 0.8px;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    }
+
+    /* Status Panel */
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+    }
+
+    .status .badge {
+      padding: 6px 14px;
+      border-radius: 50px;
+      background: #166534;
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      box-shadow: 0 0 12px rgba(22, 101, 52, 0.5);
+    }
+
+    /* Architecture Buttons */
+    .section-buttons,
+    .aim-buttons,
+    .sniper-buttons,
+    .extra-buttons,
+    .settings-buttons,
+    .keybin-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Button Grid */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    /* Main Button */
+    .button {
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 16px;
+      color: #e0f7ff;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(0, 212, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .button:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .button:hover {
+      background: rgba(0, 212, 255, 0.18);
+      border-color: #00d4ff;
+      color: #00d4ff;
+      transform: translateY(-3px);
+      box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+    }
+
+    .button.active {
+      background: rgba(0, 212, 255, 0.28);
+      border-color: #00d4ff;
+      color: #00d4ff;
+      font-weight: 700;
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.7);
+    }
+
+    /* Tab Buttons */
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      color: #00d4ff;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 4px;
+      background: #00d4ff;
+      border-radius: 2px;
+      box-shadow: 0 0 15px #00d4ff;
+    }
+
+    /* Select */
+    select {
+      padding: 10px 16px;
+      background: rgba(20, 20, 50, 0.9);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      border-radius: 14px;
+      color: #e0f7ff;
+      font-size: 14px;
+      min-width: 180px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    /* Console */
+    .console {
+      background: #0a0a1a;
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 16px;
+      height: 160px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #90ee90;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      backdrop-filter: blur(6px);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .console::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .console::-webkit-scrollbar-thumb {
+      background: #00d4ff;
+      border-radius: 4px;
+    }
+
+    .console::-webkit-scrollbar-track {
+      background: #1a1a2e;
+    }
+
+    /* Form Rows */
+    .aim-row,
+    .sniper-row,
+    .extra-row,
+    .settings-row,
+    .keybin-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .aim-label,
+    .sniper-label,
+    .extra-label,
+    .settings-label,
+    .keybin-label {
+      font-size: 14px;
+      color: #b0bec5;
+      min-width: 150px;
+    }
+
+    .note {
+      font-size: 11px;
+      color: #78909c;
+      margin-top: 3px;
+    }
+
+    /* Hotkey Buttons */
+    .hotkey-button {
+      min-width: 90px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Notifications */
+    #notifications-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+      max-width: 340px;
+    }
+
+    .notification {
+      background: linear-gradient(135deg, #166534, #1e40af);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 8px 25px rgba(22, 101, 52, 0.6);
+      opacity: 0;
+      transform: translateX(120%);
+      animation: notifIn 0.6s forwards, notifOut 0.6s forwards 5s;
+    }
+
+    @keyframes notifIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes notifOut {
+      to {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+    }
+
+    /* Utility */
+    .display-none {
+      display: none;
+    }
+
+    .content-panel {
+      display: none;
+    }
+
+    .content-panel.active {
+      display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+      }
+
+      .btn-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+
+      .user-info {
+        justify-content: center;
+      }
+
+      .tab-buttons {
+        flex-wrap: wrap;
+      }
+
+      .aim-row,
+      .sniper-row,
+      .extra-row,
+      .settings-row,
+      .keybin-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="panel">
+      <div class="status">
+        <div>
+          <strong>RENAULT CHE4TS</strong><br />
+          Connected to RENAULT's Server
+        </div>
+        <div class="badge">Online</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Free Fire Architecture</h2>
+      <div class="section-buttons" id="architecture-buttons">
+        <div class="button" data-arch="32-bit">32-bit</div>
+        <div class="button active" data-arch="64-bit">64-bit</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="tab-buttons">
+        <div class="button active" data-tab="headshot">Headshot</div>
+        <div class="button" data-tab="sniper">Sniper</div>
+        <div class="button" data-tab="extra">Extra</div>
+        <div class="button" data-tab="settings">Settings</div>
+      </div>
+    </div>
+
+
+    <div class="panel content-panel active" id="headshot">
+      <h2>Aimbot Options</h2>
+      <div class="aim-section">
+        <div class="aim-row">
+          <div>
+            <div class="aim-label">Scan Enemies</div>
+            <div class="note">Press F2 for Scan</div>
+          </div>
+          <div class="button aim-option" data-group="aim-row" data-value="default" onclick="sendCommand('aimbotscan')">
+            Scan Players</div>
+        </div>
+
+        <div class="aim-row">
+          <div>
+            <div class="aim-label">Aim Position</div>
+            <div class="note">Press F3 for on/off</div>
+          </div>
+          <div class="aim-buttons">
+            <div class="button aim-option" data-group="aimpos" data-value="neck" onclick="sendCommand('aimbotenable')">
+              Neck</div>
+            <div class="button aim-option active" data-group="aimpos" data-value="default"
+              onclick="sendCommand('aimbotdisable')">Off</div>
+          </div>
+        </div>
+
+
+
+        <div class="aim-row">
+          <div>
+            <div class="aim-label">Other Aim Position</div>
+            <div class="note">Hotkey - Help</div>
+          </div>
+          <select id="other-aimpos">
+            <option value="RightShoulder">Drag Right</option>
+            <option value="LeftShoulder">Drag Left</option>
+          </select>
+        </div>
+
+        <!-- Left Shoulder Section (Initially Hidden) -->
+        <div class="aim-row leftShoulder display-none">
+          <div>
+            <div class="aim-label">Headshot Legit</div>
+            <div class="note">Left Shoulder</div>
+          </div>
+          <div class="aim-buttons">
+            <div class="button aim-option" data-group="headshotlegit" data-value="enable"
+              onclick="sendCommand('leftShoulderOn')">Enable</div>
+            <div class="button aim-option active" data-group="headshotlegit" data-value="disable"
+              onclick="sendCommand('leftShoulderOff')">Disable</div>
+          </div>
+        </div>
+
+        <!-- Right Shoulder Section -->
+        <div class="aim-row rightShoulder">
+          <div>
+            <div class="aim-label">Headshot Legit</div>
+            <div class="note">Right Shoulder</div>
+          </div>
+          <div class="aim-buttons">
+            <div class="button aim-option" data-group="headshotlegit" data-value="enable"
+              onclick="sendCommand('rightShoulderOn')">Enable</div>
+            <div class="button aim-option active" data-group="headshotlegit" data-value="disable"
+              onclick="sendCommand('rightShoulderOff')">Disable</div>
+          </div>
+        </div>
+
+        <div class="aim-row">
+          <div>
+            <div class="aim-label">Drag Pro Mode</div>
+            <div class="note">Upward Drag Control</div>
+          </div>
+          <select id="drag-pro-mode">
+            <option value="default">Default (Disabled)</option>
+            <option value="low">Low (Hard Drag)</option>
+            <option value="mid">Mid (Medium Drag)</option>
+            <option value="high">High (Soft Drag)</option>
+          </select>
+        </div>
+
+        <div class="aim-row">
+          <div>
+            <div class="aim-label">Aimbot Female Fix</div>
+            <div class="note">Press F7 for on/off</div>
+          </div>
+          <div class="aim-buttons">
+            <div class="button aim-option" data-group="aimpos" data-value="neck" onclick="sendCommand('headon')">
+              Head</div>
+            <div class="button aim-option active" data-group="aimpos" data-value="default"
+              onclick="sendCommand('headoff')">Off</div>
+          </div>
+        </div>
+
+
+
+
+
+
+      </div>
+    </div>
+
+
+    <div class="panel content-panel" id="sniper">
+      <h2>Sniper Options</h2>
+      <div class="sniper-section">
+        <div class="sniper-row">
+          <div>
+            <div class="sniper-label">Sniper Load</div>
+            <div class="note">Loads Sniper Scope & Switch</div>
+          </div>
+          <div class="sniper-buttons">
+            <div class="button aim-option" data-group="aim-row" data-value="default"
+              onclick="sendCommand('loadsniper')">Scan Sniper</div>
+          </div>
+        </div>
+        <div class="sniper-row">
+          <div>
+            <div class="sniper-label">Sniper Scope</div>
+            <div class="note">Turn on Sniper Scope</div>
+          </div>
+          <div class="sniper-buttons">
+            <div class="button sniper-option" data-group="autozoom" data-value="on"
+              onclick="sendCommand('sniperscopeenable')">Enable</div>
+            <div class="button sniper-option active" data-group="autozoom" data-value="off"
+              onclick="sendCommand('sniperscopedisable')">Disable</div>
+          </div>
+        </div>
+        <div class="sniper-row">
+          <div>
+            <div class="sniper-label">Sniper Switch</div>
+            <div class="note">Turn on Sniper fast switch</div>
+          </div>
+          <div class="sniper-buttons">
+            <div class="button sniper-option" data-group="dropcomp" data-value="enable"
+              onclick="sendCommand('sniperswitchenable')">Enable</div>
+            <div class="button sniper-option active" data-group="dropcomp" data-value="disable"
+              onclick="sendCommand('sniperswitchdisable')">Disable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTRA TAB -->
+    <div class="panel content-panel" id="extra">
+      <h2>Extra Options</h2>
+      <div class="extra-section">
+
+
+
+        <div class="extra-row">
+          <div>
+            <div class="extra-label">Chams Menu N32</div>
+            <div class="note">Press Insert to hide/unhide</div>
+          </div>
+          <div class="extra-buttons">
+            <div class="button extra-option" data-group="chamsmenu" data-value="on" onclick="sendCommand('chamsmenu')">
+              Enable</div>
+          </div>
+        </div>
+
+
+
+
+        <div class="extra-row">
+          <div>
+            <div class="extra-label">Chams Menu P64</div>
+            <div class="note">Press Insert to hide/unhide</div>
+          </div>
+          <div class="extra-buttons">
+            <div class="button extra-option" data-group="chamsmenu64" data-value="on"
+              onclick="sendCommand('chamsmenu64')">
+              Enable</div>
+          </div>
+        </div>
+
+
+        <div class="extra-row">
+          <div>
+            <div class="extra-label">Streamer Location</div>
+            <div class="note"></div>
+          </div>
+          <div class="extra-buttons">
+            <div class="button extra-option" data-group="connectemu" data-value="on"
+              onclick="sendCommand('connectemu')">
+              Connect</div>
+          </div>
+        </div>
+
+
+
+
+        <!--  
+       <div class="extra-row">
+       <div>
+        <div class="extra-label">Esp Line</div>
+       </div>
+       <div class="extra-buttons">
+       <div class="button extra-option" data-group="espline" data-value="on"
+               onclick="sendCommand('esplineon')">  .  </div>
+           </div>
+         </div>
+       </div>
+
+
+
+
+       <div class="extra-row">
+       <div>
+       <div class="extra-label">Esp Info</div>
+         <div class="note"></div>
+       </div>
+       <div class="extra-buttons">
+       <div class="button extra-option" data-group="espinfo" data-value="on"
+              onclick="sendCommand('espinfoon')">  .  </div>
+          </div>
+        </div>
+      
+       <div class="extra-row">
+       <div>
+        <div class="extra-label">Esp Box</div>
+       </div>
+       <div class="extra-buttons">
+       <div class="button extra-option" data-group="espbox" data-value="on"
+               onclick="sendCommand('espboxon')">  .  </div>
+           </div>
+         </div> -->
+      </div>
+
+
+
+
+    </div>
+
+
+    <!-- SETTINGS TAB -->
+    <div class="panel content-panel" id="settings">
+      <h2>Settings</h2>
+      <div class="settings-section">
+
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Enable Keybinds</div>
+            <div class="note">F2-F7 will work only after enabling</div>
+          </div>
+          <div class="settings-buttons">
+            <div class="button" id="enable-keybind-btn" onclick="enableKeybind()">
+              ENABLE KEYBIND
+            </div>
+          </div>
+        </div>
+
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Theme Selector</div>
+          </div>
+          <select id="theme-selector">
+            <option value="dark" selected>Dark</option>
+            <option value="light">Light</option>
+            <!-- <option value="blue">Blue</option> -->
+          </select>
+        </div>
+      </div>
+
+
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Emulator Network</div>
+          <div class="note">Enable/Disable network</div>
+        </div>
+        <div class="settings-buttons">
+          <div class="button settings-option" data-group="networkon" data-value="on" onclick="sendCommand('networkon')">
+            Enable</div>
+          <div class="button settings-option active" data-group="networkoff" data-value="off"
+            onclick="sendCommand('networkoff')">Disable</div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Bypass PC</div>
+          <div class="note">Bypass PC From pc Checkers</div>
+        </div>
+        <div class="settings-buttons">
+          <div class="button settings-option" data-group="pcbypaas" data-value="on" onclick="sendCommand('bypasser')">
+            Bypass PC</div>
+          <div class="button settings-option active" data-group="pcbypaas" data-value="off"
+            onclick="sendCommand('vypasser')">Bypass Task manager</div>
+        </div>
+      </div>
+
+
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Auto Bypass Task Manager</div>
+          <div class="note">Inject DLL every time Task Manager opens</div>
+        </div>
+        <div class="settings-buttons">
+          <div class="button" id="enable-auto" onclick="sendCommand('enableautobypass')">
+            ENABLE AUTO BYPASS
+          </div>
+          <div class="button" id="disable-auto" onclick="sendCommand('disableautobypass')" style="display:none;">
+            DISABLE AUTO BYPASS
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  <div class="panel content-panel" id="esp">
+    <h2>Aimbot Options</h2>
+    <div class="esp-section">
+      <div class="esp-row">
+        <div>
+          <div class="esp-label">Scan Enemies</div>
+          <div class="note">Scans enimies in the match</div>
+        </div>
+        <div class="button esp-option" data-group="esp-row" data-value="default" onclick="sendCommand('headscan')">
+          Scan Players</div>
+      </div>
+
+      <div class="esp-row">
+        <div>
+          <div class="esp-label">Aim Position</div>
+          <div class="note">Hotkey - Help</div>
+        </div>
+        <div class="esp-buttons">
+          <div class="button esp-option" data-group="aimsos" data-value="neck" onclick="sendCommand('')">
+            Head</div>
+          <div class="button esp-option active" data-group="aimpdos" data-value="default" onclick="sendCommand('')">
+            Default</div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  <!-- EXTRA TAB -->
+  <div class="panel content-panel" id="keybin">
+    <h2>Keybinds Options</h2>
+    <div class="keybin-section">
+
+
+
+      <div class="flex items-center justify-between">
+        <label class="select-none">Hotkey Function</label>
+        <div class="flex space-x-2">
+          <button id="enable-hotkey"
+            class="hotkey-button py-1 px-3 border border-gray-700 rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onclick="enableHotkeys()">Enable</button>
+          <button id="disable-hotkey"
+            class="hotkey-button py-1 px-3 border border-gray-700 rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onclick="disableHotkeys()">Disable</button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <label class="select-none">Aimbot</label>
+        <select id="aimbot-key" onchange="updateKeybind('aimbot', this.value)"
+          class="w-24 py-1 bg-gray-700 text-gray-400 border border-gray-600 rounded hover:bg-gray-600 focus:outline-none focus:ring- focus:ring-indigo-500">
+        </select>
+      </div>
+
+
+      <div class="flex items-center justify-between">
+        <label class="select-none">Sniper Scope</label>
+        <select id="sniper-scope-key" onchange="updateKeybind('sniperScope', this.value)"
+          class="w-24 py-1 bg-gray-700 text-gray-400 border border-gray-600 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </select>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <label class="select-none">Sniper Switch</label>
+        <select id="sniper-switch-key" onchange="updateKeybind('sniperSwitch', this.value)"
+          class="w-24 py-1 bg-gray-700 text-gray-400 border border-gray-600 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </select>
+      </div>
+
+
+
+    </div>
+  </div>
+
+
+
+  </div>
+  </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Console</h2>
+      <div class="console" id="console"></div>
+
+
+      <div id="notifications-container"></div>
+
+
+
+
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script>
+
+
+
+
+        function enableKeybind() {
+          const btn = document.getElementById('enable-keybind-btn');
+          btn.textContent = "Enabling...";
+          btn.classList.add('active');
+
+          fetch('/enable_keybind', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          })
+            .then(res => res.json())
+            .then(data => {
+              updateConsole(data.message);
+              showNotification("Keybinds Activated!");
+              btn.textContent = "KEYBINDS ON";
+              btn.onclick = null;
+            })
+            .catch(err => {
+              updateConsole("Failed to enable keybinds");
+              btn.textContent = "ENABLE KEYBIND";
+              btn.classList.remove('active');
+            });
+        }
+
+
+
+
+
+
+
+
+
+        let selectedPosition = '';
+        let headshotEnabled = false;
+        let sniperEnabled = false;
+        let aimbotVersion = 'version-1';
+        let isTabOpen = false;
+
+        let hotkeyEnabled = false;
+        let pressedKeys = new Set();
+        let hotkeyStates = {
+          aimbot: false,
+          sniperScope: false,
+          sniperSwitch: false
+        };
+        let keybinds = {
+          aimbot: 'F4',
+          sniperScope: 'F5',
+          sniperSwitch: 'F6'
+        };
+
+        let dragEnabled = false;
+        let dragKey = 'left';
+        let dragDelay = 0;
+        let dragSpeed = 10;
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+          document.addEventListener('mousedown', (e) => {
+            if (shouldStartDrag(e)) {
+              startDragWithDelay();
+            }
+          });
+
+          document.addEventListener('mouseup', stopDragging);
+        });
+
+        function shouldStartDrag(e) {
+          if (dragKey === 'left' && e.button === 0) return true;
+          if (dragKey === 'right' && e.button === 2) return true;
+          if (dragKey === 'ctrl' && e.ctrlKey) return true;
+          if (dragKey === 'shift' && e.shiftKey) return true;
+          if (dragKey === 'alt' && e.altKey) return true;
+          if (dragKey === 'space' && e.code === 'Space') return true;
+          if (['q', 'e', 'f'].includes(dragKey) && e.key?.toLowerCase() === dragKey) return true;
+
+          return false;
+        }
+
+        function startDragWithDelay() {
+          setTimeout(() => {
+            dragEnabled = true;
+            dragLoop();
+          }, dragDelay * 1000);
+        }
+
+        function stopDragging() {
+          dragEnabled = false;
+        }
+
+        function dragLoop() {
+          if (!dragEnabled) return;
+
+
+          console.log("Dragging at speed:", dragSpeed);
+
+          setTimeout(dragLoop, 1000 / dragSpeed);
+        }
+
+        function saveAutonomicSettings() {
+          const delay = parseInt(document.getElementById("drag-delay").value);
+          const speed = parseInt(document.getElementById("drag-speed").value);
+          const key = document.getElementById("drag-key").value;
+
+          console.log("Saving Autonomic Settings:", { delay, speed, key });
+
+          fetch("/save_autonomic_settings", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ delay, speed, key })
+          })
+            .then(response => {
+              if (!response.ok) throw new Error("Failed to save settings");
+              return response.text();
+            })
+            .then(data => {
+              alert("Settings saved successfully!");
+            })
+            .catch(error => {
+              alert("Error saving settings: " + error.message);
+            });
+        }
+
+        function generateKeyList() {
+          const keys = [];
+          for (let i = 65; i <= 90; i++) {
+            keys.push(String.fromCharCode(i));
+          }
+          for (let i = 48; i <= 57; i++) {
+            keys.push(String.fromCharCode(i));
+          }
+
+          for (let i = 1; i <= 12; i++) {
+            keys.push(`F${i}`);
+          }
+          return keys;
+        }
+
+        function populateKeySelects() {
+          const keys = generateKeyList();
+          const selectIds = ['aimbot-key', 'sniper-scope-key', 'sniper-switch-key'];
+
+          selectIds.forEach(id => {
+            const select = document.getElementById(id);
+            select.innerHTML = '';
+
+            keys.forEach(key => {
+              const option = document.createElement('option');
+              option.value = key;
+              option.textContent = key;
+              select.appendChild(option);
+            });
+
+
+            if (id === 'aimbot-key') select.value = keybinds.aimbot;
+            if (id === 'sniper-scope-key') select.value = keybinds.sniperScope;
+            if (id === 'sniper-switch-key') select.value = keybinds.sniperSwitch;
+          });
+        }
+
+        function enableHotkeys() {
+          hotkeyEnabled = true;
+          document.getElementById('enable-hotkey').classList.add('bg-blue-600', 'text-white');
+          document.getElementById('disable-hotkey').classList.remove('bg-blue-600', 'text-white');
+          document.getElementById('disable-hotkey').classList.add('bg-gray-800', 'text-gray-400');
+          document.getElementById('enable-hotkey').classList.remove('bg-gray-800', 'text-gray-400');
+          updateConsole('Hotkeys enabled');
+        }
+
+        function disableHotkeys() {
+          hotkeyEnabled = false;
+          document.getElementById('disable-hotkey').classList.add('bg-blue-600', 'text-white');
+          document.getElementById('enable-hotkey').classList.remove('bg-blue-600', 'text-white');
+          document.getElementById('enable-hotkey').classList.add('bg-gray-800', 'text-gray-400');
+          document.getElementById('disable-hotkey').classList.remove('bg-gray-800', 'text-gray-400');
+          updateConsole('Hotkeys disabled');
+        }
+
+        function handleKeyDown(event) {
+          if (!hotkeyEnabled) return;
+
+          const key = event.key.toUpperCase();
+          if (pressedKeys.has(key)) return;
+
+          pressedKeys.add(key);
+          if (key === keybinds.aimbot) {
+            hotkeyStates.aimbot = !hotkeyStates.aimbot;
+            sendCommand(hotkeyStates.aimbot ? 'aimbotvisible' : 'aimbotvisibleoff');
+            updateConsole(`Aimbot ${hotkeyStates.aimbot ? 'enabled' : 'disabled'} via hotkey`);
+          }
+          else if (key === keybinds.sniperScope) {
+            hotkeyStates.sniperScope = !hotkeyStates.sniperScope;
+            sendCommand(hotkeyStates.sniperScope ? 'sniperscopeenable' : 'sniperscopedisable');
+            updateConsole(`Sniper Scope ${hotkeyStates.sniperScope ? 'enabled' : 'disabled'} via hotkey`);
+          }
+          else if (key === keybinds.sniperSwitch) {
+            hotkeyStates.sniperSwitch = !hotkeyStates.sniperSwitch;
+            sendCommand(hotkeyStates.sniperSwitch ? 'sniperswitchenable' : 'sniperswitchdisable');
+            updateConsole(`Sniper Switch ${hotkeyStates.sniperSwitch ? 'enabled' : 'disabled'} via hotkey`);
+          }
+        }
+
+        function handleKeyUp(event) {
+          const key = event.key.toUpperCase();
+          pressedKeys.delete(key);
+        }
+
+        function updateKeybind(type, value) {
+          keybinds[type] = value;
+          updateConsole(`${type.replace(/([A-Z])/g, ' $1')} key set to ${value}`);
+        }
+
+        async function sendCommand(command) {
+          const response = await fetch('/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ command: command }),
+          });
+
+          const result = await response.json();
+          const outputText = result.output || "";
+
+
+          outputText.split("\n").forEach(line => {
+            if (line.trim()) updateConsole(line);
+          });
+        }
+
+        function updateConsole(message) {
+          const consoleElement = document.getElementById('console');
+          const now = new Date();
+          const timeString = now.toLocaleTimeString();
+          const fullMessage = `[${timeString}] ${message}`;
+          consoleElement.value += fullMessage + '\n';
+          consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+
+
+
+        function toggleUser_Tab() {
+          const userTab = document.getElementById('user-tab');
+          isTabOpen = !isTabOpen;
+          userTab.classList.toggle('hidden', !isTabOpen);
+          userTab.classList.toggle('max-h-0', !isTabOpen);
+          userTab.classList.toggle('max-h-40', isTabOpen);
+        }
+
+        function closeAlert() {
+          const alertBar = document.getElementById('alert-bar');
+          alertBar.style.display = 'none';
+        }
+
+        function redirectToSupport() {
+          window.location.href = 'https://discord.gg/xcNAtf8Eyt';
+        }
+
+        function showTab(tab) {
+          const tabs = document.querySelectorAll('.tab-content');
+          tabs.forEach(t => {
+            t.id === tab ? t.classList.remove('hidden') : t.classList.add('hidden');
+          });
+        }
+
+        function handleComboBoxChange(event) {
+          selectedPosition = event.target.value;
+          console.log("Selected Aim Position:", selectedPosition);
+        }
+
+        function toggleButtonState(button) {
+          const siblingButtons = button.parentNode.children;
+          for (let sibling of siblingButtons) {
+            if (sibling !== button) {
+              sibling.classList.remove('bg-blue-600', 'text-white');
+              sibling.classList.add('bg-gray-800', 'text-gray-400');
+            }
+          }
+          button.classList.toggle('bg-blue-600');
+          button.classList.toggle('text-white');
+          button.classList.toggle('bg-gray-800');
+          button.classList.toggle('text-gray-400');
+        }
+
+        function enableHeadshotLegit() {
+          if (selectedPosition) {
+            headshotEnabled = true;
+            sendCommand('leftShoulderOn');
+            sendCommand('rightShoulderOff');
+            document.querySelector('#headshot .enable-button').classList.add('bg-blue-600', 'text-white');
+            document.querySelector('#headshot .disable-button').classList.remove('bg-blue-600', 'text-white');
+          } else {
+            console.log("No aim position selected.");
+          }
+        }
+
+
+
+
+        function disableHeadshotLegit() {
+          headshotEnabled = false;
+          sendCommand('leftShoulderOff');
+          sendCommand('rightShoulderOff');
+          document.querySelector('#headshot .disable-button').classList.add('bg-blue-600', 'text-white');
+          document.querySelector('#headshot .enable-button').classList.remove('bg-blue-600', 'text-white');
+        }
+
+        function enableSniper() {
+          sniperEnabled = true;
+          sendCommand('sniperscopeon');
+          document.querySelector('#sniper .enable-sniper-button').classList.add('bg-blue-600', 'text-white');
+          document.querySelector('#sniper .disable-sniper-button').classList.remove('bg-blue-600', 'text-white');
+        }
+
+        function disableSniper() {
+          sniperEnabled = false;
+          sendCommand('sniperscopeoff');
+          document.querySelector('#sniper .disable-sniper-button').classList.add('bg-blue-600', 'text-white');
+          document.querySelector('#sniper .enable-sniper-button').classList.remove('bg-blue-600', 'text-white');
+        }
+
+        function loadButtonClicked(button) {
+          button.classList.add('bg-blue-600', 'text-white');
+          button.classList.remove('bg-gray-800', 'text-gray-400');
+        }
+
+        function toggleAimbotVersion(version) {
+          aimbotVersion = version;
+          console.log("Selected Aimbot Version:", aimbotVersion);
+        }
+
+        function enableAimbot() {
+          if (aimbotVersion === 'version1') {
+            sendCommand('aimbotenable');
+          } else {
+            sendCommand('aimbotvisible');
+          }
+        }
+
+        function disableAimbot() {
+          if (aimbotVersion === 'version1') {
+            sendCommand('aimbotdisable');
+          } else {
+            sendCommand('aimbotvisibleoff');
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          populateKeySelects();
+
+          document.addEventListener('keydown', handleKeyDown);
+          document.addEventListener('keyup', handleKeyUp);
+
+          fetch('/user-info')
+            .then(res => res.json())
+            .then(data => {
+              if (!data.error) {
+                document.getElementById("username").innerText = data.username;
+                document.getElementById("expiry-date").innerText = data.expiry;
+              }
+            });
+
+          startStatusMonitor();
+
+          document.getElementById('enable-hotkey').classList.add('bg-gray-800', 'text-gray-400');
+          document.getElementById('disable-hotkey').classList.add('bg-blue-600', 'text-white');
+        });
+
+        const consoleEl = document.getElementById('console');
+        const notificationsContainer = document.getElementById('notifications-container');
+
+        function log(message) {
+          const now = new Date();
+          const time = now.toLocaleTimeString();
+          consoleEl.textContent += `[${time}] ${message}\n`;
+          consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function showNotification(message) {
+          const notif = document.createElement('div');
+          notif.className = 'notification';
+          notif.textContent = message;
+          notificationsContainer.appendChild(notif);
+
+          notif.addEventListener('animationend', () => {
+            notificationsContainer.removeChild(notif);
+          });
+        }
+
+        async function checkStatus() {
+          try {
+            const res = await fetch('/status');
+            const data = await res.json();
+            const badge = document.querySelector('.badge');
+
+            if (data.status === 'online') {
+              badge.textContent = 'Online';
+              badge.style.backgroundColor = '#2e7d32'; // green
+            } else {
+              badge.textContent = 'Offline';
+              badge.style.backgroundColor = '#b71c1c'; // red
+            }
+          } catch (err) {
+            console.error("Status check failed:", err);
+          }
+        }
+
+        // Check status every 3 seconds
+        setInterval(checkStatus, 3000);
+        checkStatus();
+
+        // Generic toggle button group helper for buttons inside container by data-group
+        function setupToggleButtons(containerSelector) {
+          const container = document.querySelector(containerSelector);
+          if (!container) return;
+          container.querySelectorAll('.button').forEach(button => {
+            button.addEventListener('click', () => {
+              const group = button.dataset.group;
+              if (!group) return;  // skip if no data-group
+
+              if (button.classList.contains('active')) return; // already active
+
+              // Remove active class from siblings with same data-group
+              container.querySelectorAll(`.button.active[data-group="${group}"]`).forEach(btn => {
+                btn.classList.remove('active');
+              });
+
+              // Add active to clicked button
+              button.classList.add('active');
+
+              // Log and notify
+              const value = button.dataset.value || "(unknown)";
+              // log(`${group} set to: ${value}`);
+              // showNotification(`${group} set to: ${value}`);
+            });
+          });
+        }
+
+        // Setup architecture buttons separately (they use data-arch)
+        function setupArchitectureButtons() {
+          const container = document.getElementById('architecture-buttons');
+          if (!container) return;
+          const buttons = container.querySelectorAll('.button');
+          buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+              if (btn.classList.contains('active')) return;
+              buttons.forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              const arch = btn.dataset.arch || "(unknown)";
+              log(`Architecture set to: ${arch}`);
+              showNotification(`Architecture set to ${arch}`);
+            });
+          });
+        }
+
+
+
+
+        const tabButtons = document.querySelectorAll('.tab-buttons .button');
+        const contentPanels = document.querySelectorAll('.content-panel');
+
+        tabButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const tab = button.getAttribute('data-tab');
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            contentPanels.forEach(panel => {
+              if (panel.id === tab) panel.classList.add('active');
+              else panel.classList.remove('active');
+            });
+          });
+        });
+
+        // Architecture buttons switching
+        const archButtons = document.querySelectorAll('#architecture-buttons .button');
+        archButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            archButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            log(`Architecture selected: ${btn.textContent}`);
+          });
+        });
+
+        // Function to send command to backend
+        window.sendCommand = function (command) {
+          // log(`Sending command: ${command}`);
+
+          if (command == "aimbotscan") {
+            log(`Initializing Aimbot neck.`);
+          }
+          else if (command == "headscan") {
+            log(`Initializing Aimbot head.`)
+          }
+          else if (command == "loadsniper") {
+            log(`Initializing Sniper Functions.`)
+          }
+          else if (command == "removerecoil") {
+            log(`Removing Recoil.`)
+          }
+          else if (command == "addrecoil") {
+            log(`Restoring Recoil.`)
+          }
+
+          fetch('/execute', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command }),
+          })
+            .then(response => {
+              if (!response.ok) throw new Error(`Server error: ${response.status}`);
+              return response.json();
+            })
+            .then(data => {
+              if (data.message) {
+                log(`${data.message}`);
+                // showNotification(`Command executed: ${command}`);
+              } else {
+                log(`Failed`);
+              }
+            })
+            .catch(err => {
+              log(`Error: ${err.message}`);
+              showNotification(`Error.`);
+            });
+        };
+
+        // Example: add click feedback for all buttons with .button class that call sendCommand
+        document.querySelectorAll('.button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            // You could add button active toggle logic here if needed
+          });
+        });
+
+        // Run setups on page load
+        setupArchitectureButtons();
+
+        // Setup toggles for various button groups inside respective panels
+        setupToggleButtons('#headshot .aim-section');
+        setupToggleButtons('#sniper .sniper-section');
+        setupToggleButtons('#extra .extra-section');
+        setupToggleButtons('#settings .settings-section');
+        setupToggleButtons('#esp .esp-section');
+
+
+        // Setup theme selector
+        const themeSelector = document.getElementById('theme-selector');
+        themeSelector.addEventListener('change', () => {
+          document.body.className = themeSelector.value;  // apply class 'dark', 'light', or 'blue'
+          log(`Theme changed to: ${themeSelector.value}`);
+          showNotification(`Theme changed to: ${themeSelector.value}`);
+        });
+
+
+      </script>
+
+      </script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const select = document.getElementById('other-aimpos');
+          const leftShoulder = document.querySelector('.leftShoulder');
+          const rightShoulder = document.querySelector('.rightShoulder');
+
+          if (select) {
+            select.addEventListener('change', function () {
+              const selectedValue = select.value;
+              if (selectedValue === 'LeftShoulder') {
+                leftShoulder.classList.remove('display-none');
+                rightShoulder.classList.add('display-none');
+              } else if (selectedValue === 'RightShoulder') {
+                leftShoulder.classList.add('display-none');
+                rightShoulder.classList.remove('display-none');
+              }
+            });
+          }
+
+          const dragSelect = document.getElementById('drag-pro-mode');
+          if (dragSelect) {
+            dragSelect.addEventListener('change', function () {
+              sendCommand(`dragpro_${this.value}`);
+            });
+          }
+        });
+      </script>
+
+
+
+</body>
+
+</html>
