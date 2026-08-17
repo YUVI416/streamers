@@ -507,11 +507,6 @@ namespace RED_X_CLOUD_CONTROL_BASIC
         // ══════════════════════════════════════════════════
         //  SNIPER SCOPE — AoB toggle (multi-address method)
         // ══════════════════════════════════════════════════
-        private readonly string ScopeOriginalPattern = "FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40";
-        private readonly string ScopePatchPattern    = "FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 3E 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 33 33 13 40";
-
-        private List<long> sniperScopeAddresses = new List<long>();
-        private bool   isSniperScopeOn   = false;
         private bool   waitPressKeyScope  = false;
         private Keys   scopeKey           = Keys.None;
         private int    scopeMouseButton   = -1;
